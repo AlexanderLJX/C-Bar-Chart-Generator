@@ -134,4 +134,6 @@ void saveChartToFile(const char* filename, const Category categories[], int numC
 
 	fclose(file);
 	printf("Chart saved to %s\n", filename);
+	// test print
+	printf("test print");
 }
