@@ -52,4 +52,29 @@ Mkfile.old
 dkms.conf
 
 
+
+
+# General temporary and build folders
+[Dd]ebug/
+[Rr]elease/
+x64/
+build/
+[Bb]in/
+[Oo]bj/
+
+# User-specific files
+*.suo
+*.user
+*.sln.docstates
+
+# Visual Studio specific cache files 
 .vs/
+
+# Other common ignores
+*.log
+*.tmp
+*.pdb
+
+# C Specific
+*.exe
+*.o
