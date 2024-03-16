@@ -19,7 +19,7 @@ jobs:
 
     - name: Run and capture application output
       run: |
-        printf 'GDP Per Capita\nUSD (x100000)\n5\nBermuda\n600000\nIreland\n501000\nLuxembourg\n700000\nMonaco\n1000000\nSwitzerland\n400000\n0\ny\ntest.txt\n' | myapp > actual_console_output.txt
+        printf 'GDP Per Capita\nUSD (x100000)\n5\nBermuda\n600000\nIreland\n501000\nLuxembourg\n700000\nMonaco\n1000000\nSwitzerland\n400000\n0\ny\ntest.txt\n' | ConsoleApplication1/myapp > actual_console_output.txt
       shell: bash
 
     - name: Check console output
