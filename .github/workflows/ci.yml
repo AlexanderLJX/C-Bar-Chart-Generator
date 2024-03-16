@@ -15,7 +15,7 @@ jobs:
     - name: Build your project
       run: |
         cd ConsoleApplication1
-        gcc -o /C-Bar-Chart-Generator/x64/Release/myapp yoursourcefile.c
+        gcc -o /C-Bar-Chart-Generator/x64/Release/myapp ConsoleApplication1.c
 
     - name: Run and capture application output
       run: |
