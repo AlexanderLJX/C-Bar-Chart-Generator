@@ -1,0 +1,32 @@
+name: C Application CI
+
+on: [push]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install C compiler and build tools
+      run: sudo apt-get update && sudo apt-get install -y build-essential
+
+    - name: Build your project
+      run: |
+        cd ConsoleApplication1
+        gcc -o /C-Bar-Chart-Generator/x64/Release/myapp yoursourcefile.c
+
+    - name: Run and capture application output
+      run: |
+        printf 'GDP Per Capita\nUSD (x100000)\n5\nBermuda\n600000\nIreland\n501000\nLuxembourg\n700000\nMonaco\n1000000\nSwitzerland\n400000\n0\ny\ntest.txt\n' | /C-Bar-Chart-Generator/x64/Release/myapp > actual_console_output.txt
+      shell: bash
+
+    - name: Check console output
+      run: |
+        diff actual_console_output.txt tests/expected_console_output.txt
+      shell: bash
+
+    - name: Check output file
+      run: |
+        diff test.txt tests/expected_test.txt
