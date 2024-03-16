@@ -15,11 +15,11 @@ jobs:
     - name: Build your project
       run: |
         cd ConsoleApplication1
-        gcc -o /C-Bar-Chart-Generator/x64/Release/myapp ConsoleApplication1.c
+        gcc ConsoleApplication1.c -o myapp
 
     - name: Run and capture application output
       run: |
-        printf 'GDP Per Capita\nUSD (x100000)\n5\nBermuda\n600000\nIreland\n501000\nLuxembourg\n700000\nMonaco\n1000000\nSwitzerland\n400000\n0\ny\ntest.txt\n' | /C-Bar-Chart-Generator/x64/Release/myapp > actual_console_output.txt
+        printf 'GDP Per Capita\nUSD (x100000)\n5\nBermuda\n600000\nIreland\n501000\nLuxembourg\n700000\nMonaco\n1000000\nSwitzerland\n400000\n0\ny\ntest.txt\n' | myapp > actual_console_output.txt
       shell: bash
 
     - name: Check console output
