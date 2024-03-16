@@ -1,0 +1,26 @@
+Enter the title of the bar chart: GDP Per Capita
+Enter the x-axis label: USD (x100000)
+How many categories (max 12)? 5
+Enter category 1 name: Bermuda
+Enter Bermuda value: 600000
+Enter category 2 name: Ireland
+Enter Ireland value: 501000
+Enter category 3 name: Luxembourg
+Enter Luxembourg value: 700000
+Enter category 4 name: Monaco
+Enter Monaco value: 1000000
+Enter category 5 name: Switzerland
+Enter Switzerland value: 400000
+Sort by name (0) or by bar length (1)? 0
+                                                                    GDP Per Capita
+
+Bermuda         | XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Ireland         | XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Luxembourg      | XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Monaco          | XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Switzerland     | XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                                                                    USD (x100000)
+
+Do you want to save the chart? (y/n): y
+Enter filename to save: test.txt
+Chart saved to test.txt

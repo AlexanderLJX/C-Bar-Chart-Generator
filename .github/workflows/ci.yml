@@ -24,7 +24,6 @@ jobs:
 
     - name: Check console output
       run: |
-        ls
         diff actual_console_output.txt tests/expected_console_output.txt
       shell: bash
 

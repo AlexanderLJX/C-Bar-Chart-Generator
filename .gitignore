@@ -1,4 +1,5 @@
 *.txt
+!tests/*.txt
 .vscode/
 
 # Prerequisites
