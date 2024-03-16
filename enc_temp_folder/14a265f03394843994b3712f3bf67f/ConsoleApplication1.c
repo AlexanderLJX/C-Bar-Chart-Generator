@@ -108,7 +108,7 @@ void getInput(Category categories[], int *numCategories, char *title, char *xAxi
                 }
             }
             printf("Sort by name (0) or by bar length (1)? ");
-            scanf("%d", sortOption);
+            scanf("%d", &sortOption);
             break;
         }
     }
