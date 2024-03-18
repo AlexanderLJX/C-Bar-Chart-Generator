@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-
+#define MAX_CATEGORIES 12
 // Define a structure to hold category information
 typedef struct
 {
@@ -17,6 +17,9 @@ void scaleValues(Category categories[], int numCategories);
 void sortCategories(Category categories[], int numCategories, int sortOption);
 void drawChart(const Category categories[], int numCategories, const char *title, const char *xAxisLabel);
 void saveChartToFile(const char *filename, const Category categories[], int numCategories, const char *title, const char *xAxisLabel);
+void cancelData(Category categories[], int *numCategories, char *title, char *xAxisLabel);
+void addData(Category categories[], int *numCategories, char *title, char *xAxisLabel);
+
 
 int main()
 {
@@ -39,18 +42,41 @@ int main()
     drawChart(categories, numCategories, title, xAxisLabel);
 
     // Ask if the user wants to save the chart and proceed if so
-    char saveOption;
-    printf("Do you want to save the chart? (y/n): ");
-    scanf(" %c", &saveOption);
-    if (saveOption == 'y' || saveOption == 'Y')
-    {
+    int options;
+    printf("Do you want to save the chart or continue modifying? Choose an option below\n1.Save the chart.\n2.Modify the chart.\n3.Exit Program\n");
+    scanf(" %d", &options);
+    if( options == 1 ){
         char filename[101];
         printf("Enter filename to save: ");
         scanf("%s", filename);
         saveChartToFile(filename, categories, numCategories, title, xAxisLabel);
     }
+    else if (options==2)
+    {   int modifyOptions;
+        printf("Choose an option to modify the chart. Input an option from below:\n1. Remove data\n2. Add data\n8. Exit Program\n");
+        scanf(" %d", &modifyOptions);
+        if (modifyOptions==1){
+            cancelData(categories, &numCategories, title, xAxisLabel);
+    }   else if (modifyOptions == 2) {
+            addData(categories, &numCategories, title, xAxisLabel);
+    
+    }
+        else{
 
-    return 0;
+            printf("Exiting....");
+            exit(0);
+        }
+        
+        
+    }
+    else
+    {
+        printf("Exiting....");
+        exit(0);
+        
+    }
+    
+    
 }
 
 // void clearInputBuffer()
@@ -194,4 +220,65 @@ void saveChartToFile(const char *filename, const Category categories[], int numC
 
     fclose(file);
     printf("Chart saved to %s\n", filename);
+}
+
+// Function to remove data 
+void cancelData(Category categories[], int *numCategories, char *title, char *xAxisLabel ) 
+{
+  // 1. Display list of categories
+  printf("Select a category to remove (enter category number):\n");
+  for (int i = 0; i < *numCategories; i++) {
+    printf("%d. %s\n", i + 1, categories[i].name);
+  }
+
+  // 2. Get user input for category to remove
+  int choice;
+  int validChoice = 0;
+  while (!validChoice) {
+    printf("Your choice: ");
+    scanf("%d", &choice);
+    if (choice > 0 && choice <= *numCategories) {
+      validChoice = 1;
+    } else {
+      printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
+    }
+  }
+
+  // 3. Remove the selected category
+  int removeIndex = choice - 1; // Adjust for zero-based indexing
+  if (removeIndex < *numCategories - 1) {
+    // Shift elements after the removed category to the left
+    for (int i = removeIndex; i < *numCategories - 1; i++) {
+      categories[i] = categories[i + 1];
+    }
+  }
+  (*numCategories)--; // Decrement the number of categories
+  drawChart(categories, *numCategories, title, xAxisLabel);
+
+  
+}
+
+
+
+// function to add data
+void addData(Category categories[], int *numCategories, char *title, char *xAxisLabel) {
+  // 1. Check if there's space for a new category
+  if (*numCategories == MAX_CATEGORIES) {
+    printf("Maximum number of categories reached (%d).\n", MAX_CATEGORIES);
+    return;
+  }
+
+  // 2. Get user input for new category name and value
+  printf("Enter the name of the new category: ");
+  scanf(" %[^\n]", categories[*numCategories].name); // Read a line of text
+
+  printf("Enter the value of the new category: ");
+  scanf("%d", &categories[*numCategories].value);
+
+  // 3. Update the number of categories
+  (*numCategories)++;
+
+
+  // **New line to call drawChart and display updated chart**
+  drawChart(categories, *numCategories, title, xAxisLabel);
 }
