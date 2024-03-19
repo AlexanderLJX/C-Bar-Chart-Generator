@@ -30,62 +30,55 @@ void addData(Category categories[],Scaled values[], int *numCategories, char *ti
 
 int main()
 {
-    // Variables to store user inputs
-    Category categories[12];
-    Scaled values[12];
-    int numCategories = 0;
-    char title[101], xAxisLabel[101];
-    int sortOption;
-
-    // Collect user input
-    getInput(categories, &numCategories, title, xAxisLabel, &sortOption);
-
-    // Optionally scale values to fit the chart
-    scaleValues(categories,values,numCategories);
-
-    // Sort categories based on user's choice
-    sortCategories(values, numCategories, sortOption);
-
-    // Draw the chart
-    drawChart(values, numCategories, title, xAxisLabel);
-
-    // Ask if the user wants to save the chart and proceed if so
-    int options;
-    printf("What would you like to do with the chart? Choose an option below\n1.Save the chart.\n2.Modify the chart.\n3.Exit Program\n");
-    scanf(" %d", &options);
-    if( options == 1 ){
-        char filename[101];
-        printf("Enter filename to save: ");
-        scanf("%s", filename);
-        saveChartToFile(filename, values, numCategories, title, xAxisLabel);
-    }
-    else if (options==2)
-    {   int modifyOptions;
-        printf("Choose an option to modify the chart. Input an option from below:\n1. Remove data\n2. Add data\n8. Exit Program\n");
-        scanf(" %d", &modifyOptions);
-        if (modifyOptions==1){
-
-            cancelData(categories,values, &numCategories, title, xAxisLabel);
-    }   else if (modifyOptions == 2) {
-            addData(categories,values, &numCategories, title, xAxisLabel);
+    int exitProgram = 0; // Flag to control the loop
     
-    }
-        else{
+        // Variables to store user inputs
+        Category categories[12];
+        Scaled values[12];
+        int numCategories = 0;
+        char title[101], xAxisLabel[101];
+        int sortOption;
 
-            printf("Exiting....");
-            exit(0);
+        // Collect user input
+        getInput(categories, &numCategories, title, xAxisLabel, &sortOption);
+
+        // Optionally scale values to fit the chart
+        scaleValues(categories, values, numCategories);
+
+        // Sort categories based on user's choice
+        sortCategories(values, numCategories, sortOption);
+
+        // Draw the chart
+        drawChart(values, numCategories, title, xAxisLabel);
+        
+    while (!exitProgram) {
+        // Ask if the user wants to save the chart and proceed if so
+        int options;
+        printf("What would you like to do with the chart? Choose an option below\n1.Save the chart.\n2.Modify the chart.\n3.Exit Program\n");
+        scanf(" %d", &options);
+        if (options == 1) {
+            char filename[101];
+            printf("Enter filename to save: ");
+            scanf("%s", filename);
+            saveChartToFile(filename, values, numCategories, title, xAxisLabel);
+        } else if (options == 2) {
+            int modifyOptions;
+            printf("Choose an option to modify the chart. Input an option from below:\n1. Remove data\n2. Add data\n8. Exit Program\n");
+            scanf(" %d", &modifyOptions);
+            if (modifyOptions == 1) {
+                cancelData(categories, values, &numCategories, title, xAxisLabel);
+            } else if (modifyOptions == 2) {
+                addData(categories, values, &numCategories, title, xAxisLabel);
+            } else if (modifyOptions == 8) {
+                exitProgram = 1; // Exit the loop and program
+            }
+        } else if (options == 3) {
+            exitProgram = 1; // Exit the loop and program
         }
-        
-        
     }
-    else
-    {
-        printf("Exiting....");
-        exit(0);
-        
-    }
-    
-    
+
+    printf("Exiting....");
+    return 0;
 }
 
 // void clearInputBuffer()
