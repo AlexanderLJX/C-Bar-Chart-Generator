@@ -24,7 +24,7 @@ void scaleValues(Category categories[],Scaled values[], int numCategories);
 void sortCategories(Scaled values[], int numCategories, int sortOption);
 void drawChart(const Scaled values[], int numCategories, const char *title, const char *xAxisLabel);
 void saveChartToFile(const char *filename, const Scaled values[], int numCategories, const char *title, const char *xAxisLabel);
-//void cancelData(Category categories[], int *numCategories, char *title, char *xAxisLabel);
+void cancelData(Category categories[],Scaled values[], int *numCategories, char *title, char *xAxisLabel);
 void addData(Category categories[],Scaled values[], int *numCategories, char *title, char *xAxisLabel);
 
 
@@ -57,7 +57,7 @@ int main()
         char filename[101];
         printf("Enter filename to save: ");
         scanf("%s", filename);
-        saveChartToFile(filename, categories, numCategories, title, xAxisLabel);
+        saveChartToFile(filename, values, numCategories, title, xAxisLabel);
     }
     else if (options==2)
     {   int modifyOptions;
@@ -65,7 +65,7 @@ int main()
         scanf(" %d", &modifyOptions);
         if (modifyOptions==1){
 
-            //cancelData(categories, &numCategories, title, xAxisLabel);
+            cancelData(categories,values, &numCategories, title, xAxisLabel);
     }   else if (modifyOptions == 2) {
             addData(categories,values, &numCategories, title, xAxisLabel);
     
@@ -208,6 +208,7 @@ void drawChart(const Scaled values[], int numCategories, const char *title, cons
     // Print x-axis label centered
     printf("%*s\n\n", width / 2 + (int)strlen(xAxisLabel) / 2, xAxisLabel);
 }
+
 void saveChartToFile(const char *filename, const Scaled values[], int numCategories, const char *title, const char *xAxisLabel)
 {
     FILE *file = fopen(filename, "w");
@@ -233,48 +234,58 @@ void saveChartToFile(const char *filename, const Scaled values[], int numCategor
     printf("Chart saved to %s\n", filename);
 }
 
-// // Function to remove data 
-// void cancelData(Scaled categories[], int *numCategories, char *title, char *xAxisLabel ) 
-// {
-//   // 1. Display list of categories
-//   printf("Select a category to remove (enter category number):\n");
-//   for (int i = 0; i < *numCategories; i++) {
-//     printf("%d. %s\n", i + 1, categories[i].name);
-//   }
+// Function to remove data 
+void cancelData(Category categories[],Scaled values[], int *numCategories, char *title, char *xAxisLabel ) 
+{
+  // 1. Display list of categories
+  printf("Select a category to remove (enter category number):\n");
+  for (int i = 0; i < *numCategories; i++) {
+    printf("%d. %s\n", i + 1, categories[i].name);
+  }
 
-//   // 2. Get user input for category to remove
-//   int choice;
-//   int validChoice = 0;
-//   while (!validChoice) {
-//     printf("Your choice: ");
-//     scanf("%d", &choice);
-//     if (choice > 0 && choice <= *numCategories) {
-//       validChoice = 1;
-//     } else {
-//       printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
-//     }
-//   }
+  // 2. Get user input for category to remove
+  int choice;
+  int validChoice = 0;
+  while (!validChoice) {
+    printf("Your choice: ");
+    scanf("%d", &choice);
+    if (choice > 0 && choice <= *numCategories) {
+      validChoice = 1;
+    } else {
+      printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
+    }
+  }
 
-//   // 3. Remove the selected category
-//   int removeIndex = choice - 1; // Adjust for zero-based indexing
-//   if (removeIndex < *numCategories - 1) {
-//     // Shift elements after the removed category to the left
-//     for (int i = removeIndex; i < *numCategories - 1; i++) {
-//       categories[i] = categories[i + 1];
-//     }
-//   }
-//   (*numCategories)--; // Decrement the number of categories
-//   drawChart(values, *numCategories, title, xAxisLabel);
+  // 3. Remove the selected category
+  int removeIndex = choice - 1; // Adjust for zero-based indexing
+  if (removeIndex < *numCategories - 1) {
+    // Shift elements after the removed category to the left
+    for (int i = removeIndex; i < *numCategories - 1; i++) {
+      categories[i] = categories[i + 1];
+      
+      
+    }
+
+  }
+  (*numCategories)--; // Decrement the number of categories
+
+
+   // Optionally scale values to fit the chart
+  scaleValues(categories,values,*numCategories);
+  int sortOption;
+  // Sort categories based on user's choice
+  sortCategories(values, *numCategories, sortOption);
+  drawChart(values, *numCategories, title, xAxisLabel);
 
   
-// }
+}
 
 
 
 // function to add data
 void addData(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel) {
 
-    int sortOption;
+    
   // 1. Check if there's space for a new category
   if (*numCategories == MAX_CATEGORIES) {
     printf("Maximum number of categories reached (%d).\n", MAX_CATEGORIES);
@@ -295,7 +306,7 @@ void addData(Category categories[], Scaled values[], int *numCategories, char *t
   // Optionally scale values to fit the chart
     scaleValues(categories,values,*numCategories);
 
-    
+    int sortOption;
     // Sort categories based on user's choice
     sortCategories(values, *numCategories, sortOption);
 
