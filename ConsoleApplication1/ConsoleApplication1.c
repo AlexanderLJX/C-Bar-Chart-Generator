@@ -339,7 +339,7 @@ void cancelData(Category categories[], Scaled values[], int* numCategories, char
 
 	// Re-scale and sort values according to the current sort option
 	scaleValues(categories, values, *numCategories);
-	sortCategories(values, *numCategories, sortOption);
+	sortCategories(values, *numCategories, *sortOption);
 	drawChart(values, *numCategories, title, xAxisLabel);
 }
 
