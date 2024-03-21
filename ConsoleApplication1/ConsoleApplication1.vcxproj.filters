@@ -18,5 +18,13 @@
     <ClCompile Include="ConsoleApplication1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cJSON.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cJSON.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
