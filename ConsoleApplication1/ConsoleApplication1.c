@@ -31,6 +31,8 @@ void drawChart(const Scaled values[], int numCategories, const char* title, cons
 void saveChartToFile(const char* filename, const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
 void cancelData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
 void addData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel);
+void changeCategoryName(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
+void changeCategoryValue(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
 void changeTitle(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel);
 void changeXLabel(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel);
 int getValidatedInteger(int* output, const int validNumbers[], int validCount);
@@ -82,9 +84,9 @@ int main()
 		}
 		else if (options == 2) {
 			int modifyOptions = 0;
-			printf("Choose an option to modify the chart. Input an option from below:\n1. Remove data\n2. Add data\n5. Change chart title\n6. Change x-axis label\n8. Exit Program\n");
-			while (getValidatedInteger(&modifyOptions, (int[]){ 1, 2, 5, 6, 8 }, 5) == 0) {
-				printf("Invalid input. Please enter 1, 2, 5, 6 or 8: ");
+			printf("Choose an option to modify the chart. Input an option from below:\n1. Remove data\n2. Add data\n3. Modify a category name\n4. Modify a category value\n5. Change chart title\n6. Change x-axis label\n8. Exit Program\n");
+			while (getValidatedInteger(&modifyOptions, (int[]){ 1, 2, 3, 4, 5, 6, 8 }, 5) == 0) {
+				printf("Invalid input. Please enter 1, 2, 3, 4, 5, 6 or 8: ");
 				clearInputBuffer();
 			}
 
@@ -93,7 +95,13 @@ int main()
 			}
 			else if (modifyOptions == 2) {
 				addData(categories, values, &numCategories, title, xAxisLabel);
-			}
+            }
+            else if (modifyOptions == 3) {
+                changeCategoryName(categories, values, &numCategories, title, xAxisLabel, &sortOption);
+            }
+            else if (modifyOptions == 4) {
+                changeCategoryValue(categories, values, &numCategories, title, xAxisLabel, &sortOption);
+            }
 			else if (modifyOptions == 5) {
 				changeTitle(categories, values, &numCategories, title, xAxisLabel);
 			}
@@ -344,6 +352,7 @@ void saveChartToFile(const char* filename, const Scaled values[], int numCategor
 	printf("Chart saved to %s\n", filename);
 }
 
+// Function to remove a category [Option 1]
 void cancelData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption)
 {
 	printf("Select a category to remove (enter category number):\n");
@@ -377,12 +386,12 @@ void cancelData(Category categories[], Scaled values[], int* numCategories, char
 	drawChart(values, *numCategories, title, xAxisLabel);
 }
 
-
-
 // Assuming the definition of Category and Scaled structures
 // and other relevant functions (scaleValues, sortCategories, drawChart) are available
 
-void addData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel) {
+// Function to add a category [Option 2]
+void addData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel)
+{
 	if (*numCategories == MAX_CATEGORIES) {
 		printf("Maximum number of categories reached (%d).\n", MAX_CATEGORIES);
 		return;
@@ -412,6 +421,72 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
 	drawChart(values, *numCategories, title, xAxisLabel); // Draw the chart
 }
 
+// Function to modify a category name [Option 3]
+void changeCategoryName(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption) {
+    printf("Select a category to modify (enter category number):\n");
+    for (int i = 0; i < *numCategories; i++) {
+        printf("%d. %s\n", i + 1, categories[i].name);
+    }
+
+    int choice = 0;
+    while (1) {
+        if (getValidatedInteger(&choice, (int[]){ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, *numCategories) == 1) {
+            break; // Break if valid input
+        }
+        else {
+            printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
+        }
+    }
+
+    // Adjust for zero-based indexing
+    int modifyIndex = choice - 1;
+
+    printf("Enter the new name for %s: ", categories[modifyIndex].name);
+    while (scanf(" %15[^\n]", categories[modifyIndex].name) != 1) {
+        printf("Invalid input. Please enter a category name with 15 characters or less: ");
+        clearInputBuffer();
+    }
+    clearInputBuffer();
+
+    scaleValues(categories, values, *numCategories);
+
+    sortCategories(values, *numCategories, sortOption);
+
+    drawChart(values, *numCategories, title, xAxisLabel);
+}
+
+// Function to modify a category value [Option 4]
+void changeCategoryValue(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption)
+{
+    printf("Select a category to modify (enter category number):\n");
+    for (int i = 0; i < *numCategories; i++) {
+        printf("%d. %s\n", i + 1, categories[i].name);
+    }
+    int choice = 0;
+    while (1) {
+        if (getValidatedInteger(&choice, (int[]){ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, *numCategories) == 1) {
+            break; // Break if valid input
+        }
+        else {
+            printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
+        }
+    }
+
+    // Adjust for zero-based indexing
+    int modifyIndex = choice - 1;
+    printf("Enter the new value for %s: ", categories[modifyIndex].name);
+    while (getValidatedInteger(&categories[modifyIndex].value, NULL, 0) == 0) {
+        printf("Invalid input. Please enter a numeric value: ");
+    }
+
+    scaleValues(categories, values, *numCategories);
+
+    sortCategories(values, *numCategories, sortOption);
+
+    drawChart(values, *numCategories, title, xAxisLabel);
+}
+
+// Function to change chart title [Option 5]
 void changeTitle(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel) {
 	printf("Enter the new title of the bar chart: ");
 	while (scanf(" %100[^\n]", title) != 1) {
@@ -428,6 +503,7 @@ void changeTitle(Category categories[], Scaled values[], int* numCategories, cha
 	drawChart(values, *numCategories, title, xAxisLabel);
 }
 
+// Function to change x-axis label [Option 6]
 void changeXLabel(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel) {
 	printf("Enter the new x-axis label: ");
 	while (scanf(" %100[^\n]", xAxisLabel) != 1) {
