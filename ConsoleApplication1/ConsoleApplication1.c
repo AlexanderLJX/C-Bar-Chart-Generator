@@ -483,7 +483,8 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
         printf("Enter the name of the new category: ");
         scanf(" %15[^\n]", newCategoryName); // Read the new category name
         clearInputBuffer(); // Clear the input buffer
-        isDuplicate=false;
+		
+        isDuplicate=false;// Reset the flag to false for each new input
         // Check for duplicate names
         for (int i = 0; i < *numCategories; i++) {
             if (strcmp(categories[i].name, newCategoryName) == 0) {
