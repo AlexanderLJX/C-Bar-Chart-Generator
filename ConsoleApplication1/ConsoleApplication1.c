@@ -471,35 +471,45 @@ void cancelData(Category categories[], Scaled values[], int* numCategories, char
 // Function to add a category [Option 2]
 void addData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel)
 {
-	if (*numCategories == MAX_CATEGORIES) {
-		printf("Maximum number of categories reached (%d).\n", MAX_CATEGORIES);
-		return;
-	}
+    if (*numCategories == MAX_CATEGORIES) {
+        printf("Maximum number of categories reached (%d).\n", MAX_CATEGORIES);
+        return;
+    }
 
-	printf("Enter the name of the new category: ");
-	while (scanf(" %15[^\n]", categories[*numCategories].name) != 1)
-	{
-		printf("Invalid input. Please enter a category name with 15 characters or less: ");
-		clearInputBuffer();
-	}
-	clearInputBuffer();
+    char newCategoryName[16]; // Buffer to hold the new category name
+    bool isDuplicate = false; // Flag to check for duplicate names
 
-	printf("Enter the value of the new category (numeric only): ");
+    do {
+        printf("Enter the name of the new category: ");
+        scanf(" %15[^\n]", newCategoryName); // Read the new category name
+        clearInputBuffer(); // Clear the input buffer
+        isDuplicate=false;
+        // Check for duplicate names
+        for (int i = 0; i < *numCategories; i++) {
+            if (strcmp(categories[i].name, newCategoryName) == 0) {
+                printf("Category name already exists. Please enter a unique name.\n");
+                isDuplicate = true; // Set the flag to true if a duplicate is found
+                break;
+            }
+        }
+    } while (isDuplicate); // Loop until a unique name is entered
 
-	// Loop until a valid integer is entered
-	while (getValidatedInteger(&categories[*numCategories].value, NULL, 0) == 0)
-	{
-		printf("Invalid input. Please enter a numeric value: ");
-	}
+    // Copy the new category name to the categories array
+    strcpy(categories[*numCategories].name, newCategoryName);
 
-	(*numCategories)++; // Update the number of categories
+    printf("Enter the value of the new category (numeric only): ");
+    while (getValidatedInteger(&categories[*numCategories].value, NULL, 0) == 0) {
+        printf("Invalid input. Please enter a numeric value: ");
+    }
 
-	scaleValues(categories, values, *numCategories); // Optionally scale values to fit the chart
+    (*numCategories)++; // Update the number of categories
 
-	int sortOption = 0;									// Assume sorting option is decided here or passed in some way
-	sortCategories(values, *numCategories, sortOption); // Sort categories based on user's choice
+    scaleValues(categories, values, *numCategories); // Optionally scale values to fit the chart
 
-	drawChart(values, *numCategories, title, xAxisLabel); // Draw the chart
+    int sortOption = 0; // Assume sorting option is decided here or passed in some way
+    sortCategories(values, *numCategories, sortOption); // Sort categories based on user's choice
+
+    drawChart(values, *numCategories, title, xAxisLabel); // Draw the chart
 }
 
 // Function to modify a category name [Option 3]
