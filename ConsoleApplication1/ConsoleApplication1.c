@@ -268,6 +268,13 @@ void scaleValues(Category categories[], Scaled values[], int numCategories)
 			values[i].value = (categories[i].value * 100) / max;
 		}
 	}
+	else{
+		for (int i = 0; i < numCategories; i++)
+		{
+			strcpy(values[i].name, categories[i].name);
+			values[i].value=categories[i].value;
+		}
+	}
 }
 
 int compareByName(const void* a, const void* b)
