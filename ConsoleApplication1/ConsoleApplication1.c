@@ -66,9 +66,7 @@ int main()
 		printf("What would you like to do with the chart? Choose an option below\n1.Save the chart.\n2.Modify the chart.\n3.Exit Program\n");
 		while (getValidatedInteger(&options, (int[]){ 1, 2, 3 }, 3) == 0) {
 			printf("Invalid input. Please enter 1, 2, or 3: ");
-			clearInputBuffer();
 		}
-		clearInputBuffer();
 		if (options == 1) {
 			char filename[101];
 			printf("Enter filename to save: ");
@@ -85,9 +83,7 @@ int main()
 			printf("Choose an option to modify the chart. Input an option from below:\n1. Remove data\n2. Add data\n8. Exit Program\n");
 			while (getValidatedInteger(&modifyOptions, (int[]){ 1, 2, 8 }, 3) == 0) {
 				printf("Invalid input. Please enter 1, 2, or 8: ");
-				clearInputBuffer();
 			}
-			clearInputBuffer();
 
 			if (modifyOptions == 1) {
 				cancelData(categories, values, &numCategories, title, xAxisLabel, &sortOption);
