@@ -3,8 +3,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdbool.h>
+#include <errno.h>
+#include <limits.h>
 #define MAX_CATEGORIES 12
-#define INPUT_BUFFER_SIZE 1024
+#define BUFFER_SIZE 1024
 
 // Define a structure to hold category information
 typedef struct
@@ -31,6 +34,8 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
 int getValidatedInteger(int* output, const int validNumbers[], int validCount);
 void clearInputBuffer();
 int isValidWindowsFilename(char* filename);
+bool parseInteger(const char* input, int* number);
+bool isValidNumber(int number, const int validNumbers[], int validCount);
 
 int main()
 {
@@ -143,33 +148,57 @@ int isValidWindowsFilename(char* filename) {
 	return 1; // Filename is valid
 }
 
-int getValidatedInteger(int* output, const int validNumbers[], int validCount) {
-	char inputBuffer[INPUT_BUFFER_SIZE];
-	int tempNum;
-	char checkChar;
 
-	// Read input
-	if (fgets(inputBuffer, INPUT_BUFFER_SIZE, stdin) != NULL) {
-		// Try to read an integer and check for trailing characters
-		if (sscanf(inputBuffer, "%d%c", &tempNum, &checkChar) == 2 && checkChar == '\n') {
-			if (validCount > 0) {
-				// Check against the list of valid numbers
-				for (int i = 0; i < validCount; i++) {
-					if (tempNum == validNumbers[i]) {
-						*output = tempNum;
-						return 1; // Valid number from the list
-					}
-				}
-				return 0; // Number not in the list
-			}
-			else {
-				// If no specific numbers are required, any number is accepted
-				*output = tempNum;
-				return 1; // Valid as any number is accepted
-			}
+bool parseInteger(const char* input, int* number) {
+	char* endPtr;
+	errno = 0; // To detect overflow or underflow
+
+	long val = strtol(input, &endPtr, 10); // Convert string to long
+
+	// Check conversion errors and ensure the entire string was consumed
+	if (input == endPtr || *endPtr != '\n' || errno == ERANGE || val < INT_MIN || val > INT_MAX) {
+		return false; // Not a valid integer or out of int range
+	}
+
+	*number = (int)val; // Store the converted value
+	return true; // Success
+}
+
+// Function to check if the integer is within the validNumbers array
+bool isValidNumber(int number, const int validNumbers[], int validCount) {
+	if (validCount == 0) {
+		return true; // If validCount is 0, all numbers are considered valid
+	}
+
+	for (int i = 0; i < validCount; ++i) {
+		if (number == validNumbers[i]) {
+			return true; // Number is in the validNumbers list
 		}
 	}
-	return 0; // Failure to read a number
+
+	return false; // Number not found in validNumbers list
+}
+
+int getValidatedInteger(int* output, const int validNumbers[], int validCount) {
+	char buffer[BUFFER_SIZE];
+
+	// Prompt user for input
+	if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
+		return 0; // Error or end-of-file encountered
+	}
+
+	int number;
+	if (!parseInteger(buffer, &number)) {
+		return 0; // Input was not a valid integer
+	}
+
+	if (!isValidNumber(number, validNumbers, validCount)) {
+		return 0; // Number is not in the list of valid numbers (if applicable)
+	}
+
+	// Passed all checks, set output and return success
+	*output = number;
+	return 1;
 }
 
 // Implementations of getInput, scaleValues, sortCategories, drawChart, and saveChartToFile follow...
@@ -192,9 +221,7 @@ void getInput(Category categories[], int* numCategories, char* title, char* xAxi
 	printf("How many categories (max 12)? ");
 	while (getValidatedInteger(numCategories, (int[]){ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 12) == 0) {
 		printf("Invalid input. Please enter a number between 1 and 12: ");
-		clearInputBuffer(); // Clears the buffer to remove invalid input
 	}
-	clearInputBuffer();
 
 	for (int i = 0; i < *numCategories; i++) {
 		printf("Enter category %d name: ", i + 1);
@@ -208,19 +235,13 @@ void getInput(Category categories[], int* numCategories, char* title, char* xAxi
 		printf("Enter %s value: ", categories[i].name);
 		while (getValidatedInteger(&categories[i].value, NULL, 0) == 0) {
 			printf("Invalid input. Please enter an integer value for %s: ", categories[i].name);
-			clearInputBuffer();
 		}
-
-		clearInputBuffer();
 	}
 
 	printf("Sort by name (0) or by bar length (1)? ");
 	while (getValidatedInteger(sortOption, (int[]){ 0, 1 }, 2) == 0) {
 		printf("Invalid input. Please enter 0 for name or 1 for bar length: ");
-		clearInputBuffer();
 	}
-
-	clearInputBuffer();
 }
 
 void scaleValues(Category categories[], Scaled values[], int numCategories)
@@ -324,7 +345,6 @@ void cancelData(Category categories[], Scaled values[], int* numCategories, char
 		}
 		else {
 			printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
-			clearInputBuffer();
 		}
 	}
 
@@ -365,10 +385,8 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
 
 	// Loop until a valid integer is entered
 	while (getValidatedInteger(&categories[*numCategories].value, NULL, 0) == 0) {
-		clearInputBuffer();
 		printf("Invalid input. Please enter a numeric value: ");
 	}
-	clearInputBuffer();
 
 	(*numCategories)++; // Update the number of categories
 
