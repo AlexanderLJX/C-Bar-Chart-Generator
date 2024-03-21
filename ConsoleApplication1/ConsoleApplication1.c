@@ -42,7 +42,8 @@ bool parseInteger(const char* input, int* number);
 bool isValidNumber(int number, const int validNumbers[], int validCount);
 void generateChartWithNaturalLanguage(const char* instruction, Category categories[], int* numCategories, char* title, char* xAxisLabel);
 void parseApiResponse(const char* response, Category categories[], int* numCategories, char* title, char* xAxisLabel);
-void interpretNaturalLanguageInstruction(const char* jsonInstruction, Category categories[], int* numCategories, char* title, char* xAxisLabel);
+size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* userp);
+void removeTrailingWeirdCharacters(char* str);
 
 
 int main()
@@ -71,7 +72,7 @@ int main()
 	while (!exitProgram) {
 		// Ask if the user wants to save the chart and proceed if so
 		int options;
-		printf("What would you like to do with the chart? Choose an option below:\n1.Save the chart.\n2.Modify the chart.\n3. Use natural language to modify the chart.\n4.Exit Program\n");
+		printf("What would you like to do with the chart? Choose an option below:\n1.Save the chart.\n2.Modify the chart.\n3.Use natural language to modify the chart.\n4.Exit Program\n");
 		while (getValidatedInteger(&options, (int[]){ 1, 2, 3, 4 }, 4) == 0) {
 			printf("Invalid input. Please enter 1, 2, or 3: ");
 		}
@@ -112,11 +113,36 @@ int main()
 		}
 		else if (options == 3) {
 			char instruction[1024];
+			char message[4096];
+			const char* longString =
+				"I'm about to give you some instructions for changing the parameters of a bar chart. Do not reply with extra text like \"Here's the JSON output for your instruction:\" and do not surround the output in code blocks. I want you to return the output in pure JSON format. \n"
+				"for example, if the instruction is: \"Change the title to price of cars and change the xaxis to dollars\" you will return exactly the following:\n"
+				"{\"change\":{\"title\": \"price of cars\", \"x-axis\": \"dollars\"}}\n"
+				"\n"
+				"If the instruction is: \"add a new row named bmw with value of 400,000\" you will return exactly the following:\n"
+				"{\"add\": {\"row\": {\"name\": \"bmw\", \"value\": 10}}}\n"
+				"\n"
+				"If the instruction is: \"delete the row named porche\" you will return exactly the following:\n"
+				"{\"delete\":{\"row\": {\"name\": \"porche\", \"value\": 10}}}\n"
+				"\n"
+				"This is the instruction I want you to reply a json to:\n";
+			// Copy the predefined message into the modifiable buffer
+			strncpy(message, longString, sizeof(message) - 1);
+			message[sizeof(message) - 1] = '\0'; // Ensure null-termination
+
 			printf("Enter your instruction in natural language: ");
 			fgets(instruction, sizeof(instruction), stdin);
+			printf("Generating chart with natural language instruction...\n");
+			// Append the user input to the modifiable buffer
+			strncat(message, instruction, sizeof(message) - strlen(message) - 1);
 
 			// Call the function that handles the natural language instruction
-			generateChartWithNaturalLanguage(instruction, categories, &numCategories, title, xAxisLabel);
+			generateChartWithNaturalLanguage(message, categories, &numCategories, title, xAxisLabel);
+
+			scaleValues(categories, values, numCategories); // Optionally scale values to fit the chart
+
+			int sortOption = 0; // Assume sorting option is decided here or passed in some way
+			sortCategories(values, numCategories, sortOption); // Sort categories based on user's choice
 
 			// Redraw the chart after interpreting the natural language command
 			drawChart(values, numCategories, title, xAxisLabel);
@@ -139,19 +165,33 @@ void clearInputBuffer()
 	}
 }
 
-static size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* userp) {
-	size_t realsize = size * nmemb;
-	char** response = (char**)userp;
-	char* ptr = realloc(*response, strlen(*response) + realsize + 1);
-	if (!ptr) {
-		printf("Not enough memory to save HTTP response.\n");
+size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+	size_t real_size = size * nmemb;
+	char** response_ptr = (char**)userp;
+	char* ptr = realloc(*response_ptr, strlen(*response_ptr) + real_size + 1);
+
+	if (ptr == NULL) {
+		// handle realloc failure; possibly return 0 to indicate failure to libcurl
 		return 0;
 	}
 
-	*response = ptr;
-	memcpy(&(ptr[strlen(*response)]), contents, realsize);
-	ptr[strlen(*response) + realsize] = 0;
-	return realsize;
+	*response_ptr = ptr;
+	memcpy(&((*response_ptr)[strlen(*response_ptr)]), contents, real_size);
+	(*response_ptr)[strlen(*response_ptr) + real_size] = '\0';
+
+	return real_size;
+}
+
+void removeTrailingWeirdCharacters(char* str) {
+	if (str == NULL) return; // Safety check
+
+	char* lastValidChar = strrchr(str, '}'); // Find the last occurrence of '}'
+	if (lastValidChar != NULL) {
+		// Move one character forward to keep the '}' as part of the valid JSON
+		lastValidChar++;
+		// Null-terminate the string right after the last valid character
+		*lastValidChar = '\0';
+	}
 }
 
 void generateChartWithNaturalLanguage(const char* instruction, Category categories[], int* numCategories, char* title, char* xAxisLabel) {
@@ -178,6 +218,7 @@ void generateChartWithNaturalLanguage(const char* instruction, Category categori
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 
+
 		// Headers
 		struct curl_slist* headers = NULL;
 		headers = curl_slist_append(headers, "Content-Type: application/json");
@@ -191,6 +232,8 @@ void generateChartWithNaturalLanguage(const char* instruction, Category categori
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 		}
 		else {
+			// Remove trailing weird characters from the response
+			removeTrailingWeirdCharacters(response);
 			// Use the response data
 			parseApiResponse(response, categories, numCategories, title, xAxisLabel);
 		}
@@ -215,61 +258,104 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 		return;
 	}
 
-	// Extract data from the response (this is highly dependent on the response format)
-	// Assuming the response has a field "text" which contains the generated instruction
-	const cJSON* text = cJSON_GetObjectItemCaseSensitive(json_response, "text");
-	if (cJSON_IsString(text) && (text->valuestring != NULL)) {
-		// For example, the response might be a command like "Add a category 'Food' with a value of 40"
-		// You would need to write a custom parser to interpret this text and modify your categories
-		interpretNaturalLanguageInstruction(text->valuestring, categories, numCategories, title, xAxisLabel);
+	// Navigate through the JSON structure to find the 'content' field
+	const cJSON* choices = cJSON_GetObjectItemCaseSensitive(json_response, "choices");
+	if (!cJSON_IsArray(choices)) {
+		fprintf(stderr, "Error: 'choices' is not an array\n");
+		cJSON_Delete(json_response);
+		return;
+	}
+
+	const cJSON* first_choice = cJSON_GetArrayItem(choices, 0); // Assume we only care about the first choice
+	if (first_choice == NULL) {
+		fprintf(stderr, "Error: First choice is missing\n");
+		cJSON_Delete(json_response);
+		return;
+	}
+
+	const cJSON* message = cJSON_GetObjectItemCaseSensitive(first_choice, "message");
+	if (message == NULL) {
+		fprintf(stderr, "Error: 'message' is missing from choice\n");
+		cJSON_Delete(json_response);
+		return;
+	}
+
+	const cJSON* content = cJSON_GetObjectItemCaseSensitive(message, "content");
+	if (!cJSON_IsString(content) || content->valuestring == NULL) {
+		fprintf(stderr, "Error: 'content' is missing or not a string\n");
+		cJSON_Delete(json_response);
+		return;
+	}
+
+	// debug print the content->valuestring
+	printf("content->valuestring: %s\n", content->valuestring);
+
+	// Now we have the actual instruction in content->valuestring
+	// The instruction should already be in JSON format, so parse it
+	cJSON* instruction = cJSON_Parse(content->valuestring);
+	if (instruction == NULL) {
+		fprintf(stderr, "Error parsing instruction content\n");
+		cJSON_Delete(json_response);
+		return;
+	}
+
+	// Check if it's a change action
+	cJSON* change = cJSON_GetObjectItemCaseSensitive(instruction, "change");
+	if (change) {
+		cJSON* titleItem = cJSON_GetObjectItemCaseSensitive(change, "title");
+		if (titleItem && cJSON_IsString(titleItem)) {
+			// Make sure not to write more characters than the array can hold and set the null terminator.
+			size_t max_size = 100; // Reserving space for the null terminator
+			strncpy(title, titleItem->valuestring, max_size);
+			title[max_size] = '\0'; // Explicitly set the null terminator
+		}
+		cJSON* xAxisItem = cJSON_GetObjectItemCaseSensitive(change, "x-axis");
+		if (xAxisItem && cJSON_IsString(xAxisItem)) {
+			// Make sure not to write more characters than the array can hold and set the null terminator.
+			size_t max_size = 100; // Reserving space for the null terminator
+			strncpy(xAxisLabel, xAxisItem->valuestring, max_size);
+			xAxisLabel[max_size] = '\0'; // Explicitly set the null terminator
+		}
+	}
+
+	// Check if it's an add action
+	cJSON* add = cJSON_GetObjectItemCaseSensitive(instruction, "add");
+	if (add) {
+		cJSON* row = cJSON_GetObjectItemCaseSensitive(add, "row");
+		if (row && *numCategories < MAX_CATEGORIES) {
+			cJSON* name = cJSON_GetObjectItemCaseSensitive(row, "name");
+			cJSON* value = cJSON_GetObjectItemCaseSensitive(row, "value");
+			if (name && value) {
+				strncpy(categories[*numCategories].name, name->valuestring, sizeof(categories[0].name) - 1);
+				categories[*numCategories].value = value->valueint;
+				(*numCategories)++;
+			}
+		}
+	}
+
+	// Check if it's a delete action
+	cJSON* delete = cJSON_GetObjectItemCaseSensitive(instruction, "delete");
+	if (delete) {
+		cJSON* row = cJSON_GetObjectItemCaseSensitive(delete, "row");
+		if (row) {
+			cJSON* name = cJSON_GetObjectItemCaseSensitive(row, "name");
+			if (name) {
+				for (int i = 0; i < *numCategories; i++) {
+					if (strcmp(categories[i].name, name->valuestring) == 0) {
+						// Shift elements left to delete the category
+						for (int j = i; j < *numCategories - 1; j++) {
+							categories[j] = categories[j + 1];
+						}
+						(*numCategories)--;
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	cJSON_Delete(json_response);
 }
-
-void interpretNaturalLanguageInstruction(const char* jsonInstruction, Category categories[], int* numCategories, char* title, char* xAxisLabel) {
-	cJSON* json = cJSON_Parse(jsonInstruction);
-	if (json == NULL) {
-		const char* error_ptr = cJSON_GetErrorPtr();
-		if (error_ptr != NULL) {
-			fprintf(stderr, "Error in JSON Parse: %s\n", error_ptr);
-		}
-		return;
-	}
-
-	// Here, we assume the JSON has a specific format. For instance:
-	// { "action": "add", "category": { "name": "Food", "value": 40 } }
-	cJSON* actionItem = cJSON_GetObjectItemCaseSensitive(json, "action");
-	cJSON* categoryItem;
-
-	if (cJSON_IsString(actionItem) && (actionItem->valuestring != NULL)) {
-		if (strcmp(actionItem->valuestring, "add") == 0) {
-			// Add a new category
-			categoryItem = cJSON_GetObjectItemCaseSensitive(json, "category");
-			if (cJSON_IsObject(categoryItem)) {
-				cJSON* name = cJSON_GetObjectItemCaseSensitive(categoryItem, "name");
-				cJSON* value = cJSON_GetObjectItemCaseSensitive(categoryItem, "value");
-
-				if (cJSON_IsString(name) && cJSON_IsNumber(value)) {
-					strncpy(categories[*numCategories].name, name->valuestring, sizeof(categories[0].name) - 1);
-					categories[*numCategories].value = value->valuedouble; // assuming the value is not an integer
-					(*numCategories)++;
-				}
-			}
-		}
-		else if (strcmp(actionItem->valuestring, "changeTitle") == 0) {
-			// Change chart title
-			cJSON* titleItem = cJSON_GetObjectItemCaseSensitive(json, "title");
-			if (cJSON_IsString(titleItem)) {
-				strncpy(title, titleItem->valuestring, 100);
-			}
-		}
-		// ... Handle other actions like "changeXLabel", "removeCategory", etc.
-	}
-
-	cJSON_Delete(json);
-}
-
 
 int isValidWindowsFilename(char* filename) {
 	// Check for invalid characters
