@@ -106,9 +106,9 @@ int main()
 		else if (options == 2)
 		{
 			int modifyOptions = 0;
-			printf("Choose an option to modify the chart. Input an option from below:\n1. Remove data\n2. Add data\n3. Modify a category name\n4. Modify a category value\n5. Change chart title\n6. Change x-axis label\n7. Exit Program\n");
-			while (getValidatedInteger(&modifyOptions, (int[]){ 1, 2, 3, 4, 5, 6, 7 }, 7) == 0) {
-				printf("Invalid input. Please enter 1, 2, 3, 4, 5, 6 or 7: ");
+			printf("Choose an option to modify the chart. Input an option from below:\n1. Remove data\n2. Add data\n3. Modify a category name\n4. Modify a category value\n5. Change chart title\n6. Change x-axis label\n7. Re-sort Chart\n8. Exit Program\n");
+			while (getValidatedInteger(&modifyOptions, (int[]){ 1, 2, 3, 4, 5, 6, 7, 8}, 8) == 0) {
+				printf("Invalid input. Please enter 1, 2, 3, 4, 5, 6 ,7 or 8: ");
 				clearInputBuffer();
 			}
 
@@ -134,6 +134,22 @@ int main()
 				changeXLabel(categories, values, &numCategories, title, xAxisLabel);
 			}
 			else if (modifyOptions == 7)
+			{
+
+				printf("Choose new sorting method : Sort by name (0) or by bar length (1)? ");
+						while (getValidatedInteger(&sortOption, (int[]){0, 1}, 2) == 0)
+						{
+							printf("Invalid input. Please enter 0 for name or 1 for bar length: ");
+							clearInputBuffer();
+							
+						}
+						
+
+						sortCategories(categories, values, numCategories, sortOption); // Sort categories based on user's choice
+
+    					drawChart(categories, values, numCategories, title, xAxisLabel); // Draw the chart
+			}
+			else if (modifyOptions == 8)
 			{
 				exitProgram = 1; // Exit the loop and program
 			}
@@ -902,3 +918,4 @@ void changeXLabel(Category categories[], Scaled values[], int* numCategories, ch
 
 	drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
+
