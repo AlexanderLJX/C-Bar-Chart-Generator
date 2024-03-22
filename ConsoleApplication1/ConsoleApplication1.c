@@ -32,7 +32,7 @@ void sortCategories(Category categories[],Scaled values[], int numCategories, in
 void drawChart(const Category categories[],const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
 void saveChartToFile(const char* filename, const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
 void cancelData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
-void addData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel);
+void addData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
 void changeCategoryName(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
 void changeCategoryValue(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
 void changeTitle(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel);
@@ -107,7 +107,7 @@ int main()
 			}
 			else if (modifyOptions == 2)
 			{
-				addData(categories, values, &numCategories, title, xAxisLabel);
+				addData(categories, values, &numCategories, title, xAxisLabel,&sortOption);
             }
             else if (modifyOptions == 3) {
                 changeCategoryName(categories, values, &numCategories, title, xAxisLabel, &sortOption);
@@ -718,7 +718,7 @@ void cancelData(Category categories[], Scaled values[], int* numCategories, char
 // and other relevant functions (scaleValues, sortCategories, drawChart) are available
 
 // Function to add a category [Option 2]
-void addData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel)
+void addData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption)
 {
     if (*numCategories == MAX_CATEGORIES) {
         printf("Maximum number of categories reached (%d).\n", MAX_CATEGORIES);
@@ -756,8 +756,7 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
 
     scaleValues(categories, values, *numCategories); // Optionally scale values to fit the chart
 
-    int sortOption = 0; // Assume sorting option is decided here or passed in some way
-    sortCategories(categories,values, *numCategories, sortOption); // Sort categories based on user's choice
+    sortCategories(categories,values, *numCategories, *sortOption); // Sort categories based on user's choice
 
     drawChart(categories,values, *numCategories, title, xAxisLabel); // Draw the chart
 }
