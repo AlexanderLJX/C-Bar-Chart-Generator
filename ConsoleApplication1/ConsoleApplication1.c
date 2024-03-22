@@ -29,7 +29,7 @@ typedef struct
 void getInput(Category categories[], int *numCategories, char *title, char *xAxisLabel, int *sortOption);
 void scaleValues(Category categories[], Scaled values[], int numCategories);
 void sortCategories(Scaled values[], int numCategories, int sortOption);
-void drawChart(const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
+void drawChart(const Category categories[],const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
 void saveChartToFile(const char* filename, const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
 void cancelData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
 void addData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel);
@@ -69,7 +69,7 @@ int main()
 	sortCategories(values, numCategories, sortOption);
 
 	// Draw the chart
-	drawChart(values, numCategories, title, xAxisLabel);
+	drawChart(categories,values, numCategories, title, xAxisLabel);
 
 	while (!exitProgram)
 	{
@@ -161,7 +161,7 @@ int main()
 			sortCategories(values, numCategories, sortOption); // Sort categories based on user's choice
 
 			// Redraw the chart after interpreting the natural language command
-			drawChart(values, numCategories, title, xAxisLabel);
+			drawChart(categories,values, numCategories, title, xAxisLabel);
 		}
 		else if (options == 4) {
 			exitProgram = 1; // Exit the loop and program
@@ -573,13 +573,13 @@ void sortCategories(Scaled values[], int numCategories, int sortOption)
 	}
 }
 
-void drawChart(const Scaled values[], int numCategories, const char *title, const char *xAxisLabel)
+void drawChart(const Category categories[], const Scaled values[], int numCategories, const char *title, const char *xAxisLabel)
 {
 	int width = 150;											  // Max width for bars
 	printf("%*s\n\n", width / 2 + (int)strlen(title) / 2, title); // Center the title
 
 	int max_bar_length = 0;
-
+    int axis_values =0;
 	for (int i = 0; i < numCategories; i++)
 	{
 		printf("%-16s |", values[i].name); // Print category name
@@ -587,7 +587,8 @@ void drawChart(const Scaled values[], int numCategories, const char *title, cons
 		{
 			printf("X"); // Print bar
 			if (values[i].value > max_bar_length)
-			{
+			{   
+				axis_values= categories[i].value;
 				max_bar_length = values[i].value;
 			}
 		}
@@ -616,13 +617,14 @@ void drawChart(const Scaled values[], int numCategories, const char *title, cons
 		{
 			printf("\n%17s0", "                ");
 		}
-		else if (n == max_bar_length / 2)
+		else if (n == max_bar_length/ 2)
 		{
-			printf("%d", max_bar_length/2);
+			printf("%d", axis_values/2);
 		}
 		else if (n == max_bar_length)
 		{
-			printf("%d", max_bar_length);
+			printf("%d", axis_values);
+
 		}
 		else
 		{
@@ -694,7 +696,7 @@ void cancelData(Category categories[], Scaled values[], int* numCategories, char
 	// Re-scale and sort values according to the current sort option
 	scaleValues(categories, values, *numCategories);
 	sortCategories(values, *numCategories, *sortOption);
-	drawChart(values, *numCategories, title, xAxisLabel);
+	drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
 
 // Assuming the definition of Category and Scaled structures
@@ -742,7 +744,7 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
     int sortOption = 0; // Assume sorting option is decided here or passed in some way
     sortCategories(values, *numCategories, sortOption); // Sort categories based on user's choice
 
-    drawChart(values, *numCategories, title, xAxisLabel); // Draw the chart
+    drawChart(categories,values, *numCategories, title, xAxisLabel); // Draw the chart
 }
 
 // Function to modify a category name [Option 3]
@@ -776,7 +778,7 @@ void changeCategoryName(Category categories[], Scaled values[], int* numCategori
 
     sortCategories(values, *numCategories, *sortOption);
 
-    drawChart(values, *numCategories, title, xAxisLabel);
+    drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
 
 // Function to modify a category value [Option 4]
@@ -807,7 +809,7 @@ void changeCategoryValue(Category categories[], Scaled values[], int* numCategor
 
     sortCategories(values, *numCategories, *sortOption);
 
-    drawChart(values, *numCategories, title, xAxisLabel);
+    drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
 
 // Function to change chart title [Option 5]
@@ -825,7 +827,7 @@ void changeTitle(Category categories[], Scaled values[], int* numCategories, cha
 	int sortOption = 0; // Assume sorting option is decided here or passed in some way
 	sortCategories(values, *numCategories, sortOption);
 
-	drawChart(values, *numCategories, title, xAxisLabel);
+	drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
 
 // Function to change x-axis label [Option 6]
@@ -843,5 +845,5 @@ void changeXLabel(Category categories[], Scaled values[], int* numCategories, ch
 	int sortOption = 0; // Assume sorting option is decided here or passed in some way
 	sortCategories(values, *numCategories, sortOption);
 
-	drawChart(values, *numCategories, title, xAxisLabel);
+	drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
