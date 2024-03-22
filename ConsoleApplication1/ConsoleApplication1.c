@@ -28,7 +28,7 @@ typedef struct
 // Function prototypes
 void getInput(Category categories[], int *numCategories, char *title, char *xAxisLabel, int *sortOption);
 void scaleValues(Category categories[], Scaled values[], int numCategories);
-void sortCategories(Scaled values[], int numCategories, int sortOption);
+void sortCategories(Category categories[],Scaled values[], int numCategories, int sortOption);
 void drawChart(const Category categories[],const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
 void saveChartToFile(const char* filename, const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
 void cancelData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
@@ -66,7 +66,7 @@ int main()
 	scaleValues(categories, values, numCategories);
 
 	// Sort categories based on user's choice
-	sortCategories(values, numCategories, sortOption);
+	sortCategories(categories,values, numCategories, sortOption);
 
 	// Draw the chart
 	drawChart(categories,values, numCategories, title, xAxisLabel);
@@ -158,7 +158,7 @@ int main()
 			scaleValues(categories, values, numCategories); // Optionally scale values to fit the chart
 
 			int sortOption = 0; // Assume sorting option is decided here or passed in some way
-			sortCategories(values, numCategories, sortOption); // Sort categories based on user's choice
+			sortCategories(categories,values, numCategories, sortOption); // Sort categories based on user's choice
 
 			// Redraw the chart after interpreting the natural language command
 			drawChart(categories,values, numCategories, title, xAxisLabel);
@@ -550,26 +550,41 @@ void scaleValues(Category categories[], Scaled values[], int numCategories)
 		}
 	}
 }
-
+//sort functions for scaled values
 int compareByName(const void *a, const void *b)
 {
 	return strcmp(((Scaled *)a)->name, ((Scaled *)b)->name);
+	
 }
 
 int compareByValue(const void *a, const void *b)
 {
 	return ((Scaled *)b)->value - ((Scaled *)a)->value;
+	
+}
+//sort functions for non scaled values
+int compareByName2(const void *a, const void *b)
+{
+	
+	return strcmp(((Category *)a)->name, ((Category *)b)->name);
 }
 
-void sortCategories(Scaled values[], int numCategories, int sortOption)
+int compareByValue2(const void *a, const void *b)
+{
+	
+	return ((Category *)b)->value - ((Category *)a)->value; 
+}
+void sortCategories(Category catergories[],Scaled values[], int numCategories, int sortOption)
 {
 	if (sortOption == 0)
 	{ // Sort by name
 		qsort(values, numCategories, sizeof(Scaled), compareByName);
+		qsort(catergories, numCategories, sizeof(Category), compareByName2);
 	}
 	else
 	{ // Sort by value
 		qsort(values, numCategories, sizeof(Scaled), compareByValue);
+		qsort(catergories, numCategories, sizeof(Category), compareByValue2);
 	}
 }
 
@@ -695,7 +710,7 @@ void cancelData(Category categories[], Scaled values[], int* numCategories, char
 
 	// Re-scale and sort values according to the current sort option
 	scaleValues(categories, values, *numCategories);
-	sortCategories(values, *numCategories, *sortOption);
+	sortCategories(categories,values, *numCategories, *sortOption);
 	drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
 
@@ -742,7 +757,7 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
     scaleValues(categories, values, *numCategories); // Optionally scale values to fit the chart
 
     int sortOption = 0; // Assume sorting option is decided here or passed in some way
-    sortCategories(values, *numCategories, sortOption); // Sort categories based on user's choice
+    sortCategories(categories,values, *numCategories, sortOption); // Sort categories based on user's choice
 
     drawChart(categories,values, *numCategories, title, xAxisLabel); // Draw the chart
 }
@@ -776,7 +791,7 @@ void changeCategoryName(Category categories[], Scaled values[], int* numCategori
 
     scaleValues(categories, values, *numCategories);
 
-    sortCategories(values, *numCategories, *sortOption);
+    sortCategories(categories,values, *numCategories, *sortOption);
 
     drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
@@ -807,7 +822,7 @@ void changeCategoryValue(Category categories[], Scaled values[], int* numCategor
 
     scaleValues(categories, values, *numCategories);
 
-    sortCategories(values, *numCategories, *sortOption);
+    sortCategories(categories,values, *numCategories, *sortOption);
 
     drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
@@ -825,7 +840,7 @@ void changeTitle(Category categories[], Scaled values[], int* numCategories, cha
 	scaleValues(categories, values, *numCategories);
 
 	int sortOption = 0; // Assume sorting option is decided here or passed in some way
-	sortCategories(values, *numCategories, sortOption);
+	sortCategories(categories,values, *numCategories, sortOption);
 
 	drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
@@ -843,7 +858,7 @@ void changeXLabel(Category categories[], Scaled values[], int* numCategories, ch
 	scaleValues(categories, values, *numCategories);
 
 	int sortOption = 0; // Assume sorting option is decided here or passed in some way
-	sortCategories(values, *numCategories, sortOption);
+	sortCategories(categories,values, *numCategories, sortOption);
 
 	drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
