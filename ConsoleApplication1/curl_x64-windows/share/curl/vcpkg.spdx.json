@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/curl-x64-windows-8.6.0#1-4ab258bb-d606-4fa8-b23b-03fd49be555d",
-  "name": "curl:x64-windows@8.6.0#1 124171438f1945700317e89e0614115d721ac725b40a93fc7c0c0b05800f963a",
+  "documentNamespace": "https://spdx.org/spdxdocs/curl-x64-windows-8.6.0#1-56d54592-6dd8-479f-b7fb-90519020076f",
+  "name": "curl:x64-windows@8.6.0#1 a943c5a2ca784ce2f878b812e0d16ca00d62010eebdc8cddfaed17f98e6cceba",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-8a83681f921b10d86ae626fd833c253f4f8c355b"
+      "Tool: vcpkg-7d353e869753e5609a1f1a057df3db8fd356e49d"
     ],
-    "created": "2024-03-17T11:12:54Z"
+    "created": "2024-03-22T01:48:09Z"
   },
   "relationships": [
     {
@@ -179,7 +179,7 @@
     {
       "name": "curl:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "124171438f1945700317e89e0614115d721ac725b40a93fc7c0c0b05800f963a",
+      "versionInfo": "a943c5a2ca784ce2f878b812e0d16ca00d62010eebdc8cddfaed17f98e6cceba",
       "downloadLocation": "NONE",
       "licenseConcluded": "curl AND ISC AND BSD-3-Clause",
       "licenseDeclared": "NOASSERTION",
@@ -203,7 +203,7 @@
   ],
   "files": [
     {
-      "fileName": "./G:/vcpkg/ports/curl/0002_fix_uwp.patch",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/0002_fix_uwp.patch",
       "SPDXID": "SPDXRef-file-0",
       "checksums": [
         {
@@ -215,7 +215,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/0005_remove_imp_suffix.patch",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/0005_remove_imp_suffix.patch",
       "SPDXID": "SPDXRef-file-1",
       "checksums": [
         {
@@ -227,7 +227,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/0012-fix-dependency-idn2.patch",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/0012-fix-dependency-idn2.patch",
       "SPDXID": "SPDXRef-file-2",
       "checksums": [
         {
@@ -239,7 +239,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/0020-fix-pc-file.patch",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/0020-fix-pc-file.patch",
       "SPDXID": "SPDXRef-file-3",
       "checksums": [
         {
@@ -251,7 +251,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/0022-deduplicate-libs.patch",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/0022-deduplicate-libs.patch",
       "SPDXID": "SPDXRef-file-4",
       "checksums": [
         {
@@ -263,7 +263,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/cmake-config.patch",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/cmake-config.patch",
       "SPDXID": "SPDXRef-file-5",
       "checksums": [
         {
@@ -275,7 +275,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/cmake-project-include.cmake",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/cmake-project-include.cmake",
       "SPDXID": "SPDXRef-file-6",
       "checksums": [
         {
@@ -287,7 +287,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/dependencies.patch",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/dependencies.patch",
       "SPDXID": "SPDXRef-file-7",
       "checksums": [
         {
@@ -299,7 +299,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/export-components.patch",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/export-components.patch",
       "SPDXID": "SPDXRef-file-8",
       "checksums": [
         {
@@ -311,7 +311,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/mbedtls-ws2_32.patch",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/mbedtls-ws2_32.patch",
       "SPDXID": "SPDXRef-file-9",
       "checksums": [
         {
@@ -323,7 +323,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/portfile.cmake",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/portfile.cmake",
       "SPDXID": "SPDXRef-file-10",
       "checksums": [
         {
@@ -335,7 +335,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/usage",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/usage",
       "SPDXID": "SPDXRef-file-11",
       "checksums": [
         {
@@ -347,7 +347,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/vcpkg-cmake-wrapper.cmake",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/vcpkg-cmake-wrapper.cmake",
       "SPDXID": "SPDXRef-file-12",
       "checksums": [
         {
@@ -359,7 +359,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./G:/vcpkg/ports/curl/vcpkg.json",
+      "fileName": "./C:/Users/Xander/Documents/C-Bar-Chart-Generator/vcpkg/ports/curl/vcpkg.json",
       "SPDXID": "SPDXRef-file-13",
       "checksums": [
         {

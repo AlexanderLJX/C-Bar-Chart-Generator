@@ -4,7 +4,7 @@ Port-Version: 1
 Depends: vcpkg-cmake, vcpkg-cmake-config, zlib
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 124171438f1945700317e89e0614115d721ac725b40a93fc7c0c0b05800f963a
+Abi: a943c5a2ca784ce2f878b812e0d16ca00d62010eebdc8cddfaed17f98e6cceba
 Description: A library for transferring data with URLs
 Default-Features: non-http, ssl
 
@@ -33,9 +33,3 @@ Feature: sspi
 Architecture: x64-windows
 Multi-Arch: same
 Description: SSPI support
-
-Package: curl
-Feature: tool
-Architecture: x64-windows
-Multi-Arch: same
-Description: Builds curl executable

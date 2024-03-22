@@ -1,6 +1,8 @@
 *.txt
 !tests/*.txt
 .vscode/
+vcpkg/
+ConsoleApplication1/curl_x64-windows/
 
 # Prerequisites
 *.d
