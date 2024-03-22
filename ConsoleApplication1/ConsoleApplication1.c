@@ -8,8 +8,19 @@
 #include <limits.h>
 #include <curl/curl.h>
 #include "cJSON.h"
+#include <windows.h> // For sleep and system functions
 #define MAX_CATEGORIES 12
 #define BUFFER_SIZE 1024
+
+
+// Define ANSI color codes
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 // Define a structure to hold category information
 typedef struct
@@ -132,14 +143,21 @@ int main()
 			char message[4096];
 			const char* longString =
 				"I'm about to give you some instructions for changing the parameters of a bar chart. Do not reply with extra text like \"Here's the JSON output for your instruction:\" and do not surround the output in code blocks. I want you to return the output in pure JSON format. \n"
-				"for example, if the instruction is: \"Change the title to price of cars and change the xaxis to dollars\" you will return exactly the following:\n"
+				"for example, if the instruction is: \"Change the name of the chart to price of cars and change the xaxis to dollars\" you will return exactly the following:\n"
 				"{\"change\":{\"title\": \"price of cars\", \"x-axis\": \"dollars\"}}\n"
 				"\n"
 				"If the instruction is: \"add a new row named bmw with value of 400,000\" you will return exactly the following:\n"
 				"{\"add\": {\"row\": {\"name\": \"bmw\", \"value\": 10}}}\n"
 				"\n"
 				"If the instruction is: \"delete the row named porche\" you will return exactly the following:\n"
-				"{\"delete\":{\"row\": {\"name\": \"porche\", \"value\": 10}}}\n"
+				"{\"delete\":{\"row\": {\"name\": \"porche\"}}}\n"
+				"\n"
+				"If the instruction is: \"change the name of the table to blah blah black sheep and change the row named bye bye to good bye\" you will return exactly the following:\n"
+				"{\"change\":{\"title\": \"price of cars\", \"row\": {\"name\": \"bye bye\", \"changed_name\": \"good bye\"}}}\n"
+				"\n"
+				"If the instruction is: \"change the xaxis of the table to good night punpun and change the row named morning pupun to to value 6586\" you will return exactly the following:\n"
+				"{\"change\":{\"title\": \"good night punpun\", \"row\": {\"name\": \"morning punpun\", \"changed_value\": 6586}}}\n"
+				"\n"
 				"\n"
 				"This is the instruction I want you to reply a json to:\n";
 			// Copy the predefined message into the modifiable buffer
@@ -304,7 +322,7 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 	}
 
 	// debug print the content->valuestring
-	printf("content->valuestring: %s\n", content->valuestring);
+	printf("[Debug] content->valuestring: %s\n", content->valuestring);
 
 	// Now we have the actual instruction in content->valuestring
 	// The instruction should already be in JSON format, so parse it
@@ -331,6 +349,30 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 			size_t max_size = 100; // Reserving space for the null terminator
 			strncpy(xAxisLabel, xAxisItem->valuestring, max_size);
 			xAxisLabel[max_size] = '\0'; // Explicitly set the null terminator
+		}
+		cJSON* row = cJSON_GetObjectItemCaseSensitive(change, "row");
+		if (row && *numCategories < MAX_CATEGORIES) {
+			cJSON* name = cJSON_GetObjectItemCaseSensitive(row, "name");
+			cJSON* changed_name = cJSON_GetObjectItemCaseSensitive(row, "changed_name");
+			if (name && changed_name) {
+				for (int i = 0; i < *numCategories; i++) {
+					if (strcmp(categories[i].name, name->valuestring) == 0) {
+						// Update the category name
+						strncpy(categories[i].name, changed_name->valuestring, sizeof(categories[0].name) - 1);
+						break;
+					}
+				}
+			}
+			cJSON* changed_value = cJSON_GetObjectItemCaseSensitive(row, "changed_value");
+			if (name && changed_value) {
+				for (int i = 0; i < *numCategories; i++) {
+					if (strcmp(categories[i].name, name->valuestring) == 0) {
+						// Update the category value
+						categories[i].value = changed_value->valueint;
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -588,66 +630,65 @@ void sortCategories(Category catergories[],Scaled values[], int numCategories, i
 	}
 }
 
-void drawChart(const Category categories[], const Scaled values[], int numCategories, const char *title, const char *xAxisLabel)
+void drawChart(const Category categories[], const Scaled values[], int numCategories, const char* title, const char* xAxisLabel)
 {
-	int width = 150;											  // Max width for bars
+	int width = 150; // Max width for bars
+	printf(ANSI_COLOR_BLUE);
 	printf("%*s\n\n", width / 2 + (int)strlen(title) / 2, title); // Center the title
 
 	int max_bar_length = 0;
-    int axis_values =0;
-	for (int i = 0; i < numCategories; i++)
-	{
+	int axis_values = 0;
+	for (int i = 0; i < numCategories; i++) {
+		printf(ANSI_COLOR_YELLOW);
 		printf("%-16s |", values[i].name); // Print category name
-		for (int j = 0; j < values[i].value; j++)
-		{
+		if (values[i].value > max_bar_length) {
+			axis_values = categories[i].value;
+			max_bar_length = values[i].value;
+		}
+		for (int j = 0; j < values[i].value; j++) {
+			printf(ANSI_COLOR_GREEN);
 			printf("X"); // Print bar
-			if (values[i].value > max_bar_length)
-			{   
-				axis_values= categories[i].value;
-				max_bar_length = values[i].value;
-			}
+			printf(ANSI_COLOR_RESET);
+			Sleep(10); // Delay for 50 milliseconds to animate
 		}
 		printf("\n%17s|\n", "                ");
 	}
 
-	for (int k = 0; k <= max_bar_length; k++)
-	{
-		if (k == 0)
-		{
+	for (int k = 0; k <= max_bar_length; k++) {
+		if (k == 0) {
 			printf("%17s+", "                ");
 		}
-		else if (k == max_bar_length / 2 || k == max_bar_length)
-		{
+		else if (k == max_bar_length / 2 || k == max_bar_length) {
+			printf(ANSI_COLOR_MAGENTA);
 			printf("+");
+			printf(ANSI_COLOR_RESET);
 		}
-		else
-		{
+		else {
+			printf(ANSI_COLOR_RED);
 			printf("-");
+			printf(ANSI_COLOR_RESET);
 		}
 	}
 
-	for (int n = 0; n <= max_bar_length; n++)
-	{
-		if (n == 0)
-		{
+	for (int n = 0; n <= max_bar_length; n++) {
+		if (n == 0) {
 			printf("\n%17s0", "                ");
 		}
-		else if (n == max_bar_length/ 2)
-		{
-			printf("%d", axis_values/2);
+		else if (n == max_bar_length / 2) {
+			printf(ANSI_COLOR_CYAN);
+			printf("%d", axis_values / 2);
 		}
-		else if (n == max_bar_length)
-		{
+		else if (n == max_bar_length) {
+			printf(ANSI_COLOR_CYAN);
 			printf("%d", axis_values);
-
 		}
-		else
-		{
+		else {
 			printf(" ");
 		}
 	}
-
+	printf(ANSI_COLOR_BLUE);
 	printf("\n%*s\n\n", width / 2 + (int)strlen(xAxisLabel) / 2, xAxisLabel);
+	printf(ANSI_COLOR_RESET);
 }
 
 void saveChartToFile(const char *filename, const Scaled values[], int numCategories, const char *title, const char *xAxisLabel)

@@ -1,4 +1,5 @@
 *.txt
+*.gguf
 !tests/*.txt
 .vscode/
 vcpkg/
