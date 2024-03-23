@@ -9,6 +9,7 @@
 #include <curl/curl.h>
 #include "cJSON.h"
 #include <windows.h> // For sleep and system functions
+#include <stdarg.h>
 #define MAX_CATEGORIES 12
 #define BUFFER_SIZE 1024
 
@@ -58,10 +59,11 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* userp);
 void removeTrailingWeirdCharacters(char* str);
 void enableANSIProcessing();
-
+void my_printf(const char* format, ...);
 
 int main()
 {
+	#define printf my_printf
 	enableANSIProcessing(); // Enable ANSI color processing for Windows
 	int exitProgram = 0; // Flag to control the loop
 
@@ -72,8 +74,64 @@ int main()
 	char title[101], xAxisLabel[101];
 	int sortOption;
 
-	// Collect user input
-	getInput(categories, &numCategories, title, xAxisLabel, &sortOption);
+	// initialize long string
+	const char* welcomeMessage =
+		"\n"
+		"\x1b[34m   _____  \x1b[35m ____                _____ _                _      _____                           _             _ \n"
+		"\x1b[34m  / ____| \x1b[35m|  _ \\              / ____| |              | |    / ____|                         | |           | |\n"
+		"\x1b[34m | |      \x1b[35m| |_) | __ _ _ __  | |    | |__   __ _ _ __| |_  | |  __  ___ _ __   ___ _ __ __ _| |_ ___  _ __| |\n"
+		"\x1b[34m | |      \x1b[35m|  _ < / _` | '__| | |    | '_ \\ / _` | '__| __| | | |_ |/ _ \\ '_ \\ / _ \\ '__/ _` | __/ _ \\| '__| |\n"
+		"\x1b[34m | |____  \x1b[35m| |_) | (_| | |    | |____| | | | (_| | |  | |_  | |__| |  __/ | | |  __/ | | (_| | || (_) | |  |_|\n"
+		"\x1b[34m  \\_____| \x1b[35m|____/ \\__,_|_|     \\_____|_| |_|\\__,_|_|   \\__|  \\_____|\\___|_| |_|\\___|_|  \\__,_|\\__\\___/|_|  (_)\n"
+		"                                                                                                             \n"
+		"                                                                                                             \n"
+		"";
+	
+
+	printf("%s", welcomeMessage);
+
+	printf("Would you like to generate a chart using natural language? (y/n): ");
+	char choice;
+	while (scanf(" %c", &choice) != 1 || (choice != 'y' && choice != 'n'))
+	{
+		printf("Invalid input. Please enter 'y' or 'n': ");
+		clearInputBuffer();
+	}
+	clearInputBuffer();
+
+	if (choice == 'y')
+	{
+		char instruction[1024];
+		char message[4096];
+		const char* longString =
+			"I'm about to give you some instructions for creating a horizontal bar chart. Do not reply with extra text like \"Here's the JSON output for your instruction:\" and do not surround the output in code blocks like ```json ```. You are only to return the output in pure JSON format. If you are unsure about a specific value in the json, just make up something for the json.\n"
+			"for example, if the instruction is: \"Create a graph for a b c given the values are 100,200,300\" you will only reply something like the following:\n"
+			"{\"create\":{\"title\": \"Bar chart of a, b, c\", \"x-axis\": \"values\", \"rows\": [{\"name\": \"a\", \"value\": 100},{\"name\": \"b\", \"value\": 200},{\"name\": \"c\", \"value\": 300}]}}\n"
+			"\n"
+			"If the instruction is: \"rank top 3 real universities in singapore and their power level in numbers, give me exact names and exact power level. if you don't know just make it up\" you will return something like the following:\n"
+			"{\"create\": {\"title\": \"Top 3 Universities in Singapore and Their Power Levels\",\"x-axis\": \"Power Level\",\"rows\": [{\"name\": \"National University of Singapore (NUS)\", \"value\": 95},{\"name\": \"Nanyang Technological University (NTU)\", \"value\": 92},{\"name\": \"Singapore Management University (SMU)\", \"value\": 88}]}}\n"
+			"\n"
+			"If the instruction is: \"electricity price in singapore in years 2015-2020\" you will return something like the following:\n"
+			"{\"create\": {\"title\": \"Electricity Price in Singapore (2015-2020)\", \"x-axis\": \"Cents per kWh\", \"rows\": [{\"name\": \"2015\", \"value\": 26},{\"name\": \"2016\", \"value\": 23},{\"name\": \"2017\", \"value\": 24},{\"name\": \"2018\", \"value\": 26},{\"name\": \"2019\", \"value\": 27},{\"name\": \"2020\", \"value\": 26}]}}\n"
+			"\n"
+			"This is the instruction I want you to reply a json to:";
+
+		// Copy the predefined message into the modifiable buffer
+		strncpy(message, longString, sizeof(message) - 1);
+		message[sizeof(message) - 1] = '\0'; // Ensure null-termination
+
+		printf("Enter your instruction in natural language: ");
+		fgets(instruction, sizeof(instruction), stdin);
+		printf("Generating chart with natural language instruction...\n");
+		// Append the user input to the modifiable buffer
+		strncat(message, instruction, sizeof(message) - strlen(message) - 1);
+		generateChartWithNaturalLanguage(message, categories, &numCategories, title, xAxisLabel);
+	}
+	else
+	{
+		// Collect user input manually
+		getInput(categories, &numCategories, title, xAxisLabel, &sortOption);
+	}
 
 	// Optionally scale values to fit the chart
 	scaleValues(categories, values, numCategories);
@@ -193,8 +251,8 @@ int main()
 
 			scaleValues(categories, values, numCategories); // Optionally scale values to fit the chart
 
-			int sortOption = 0; // Assume sorting option is decided here or passed in some way
-			sortCategories(categories,values, numCategories, sortOption); // Sort categories based on user's choice
+			// int sortOption = 0; // Assume sorting option is decided here or passed in some way
+			// sortCategories(categories,values, numCategories, sortOption); // Sort categories based on user's choice
 
 			// Redraw the chart after interpreting the natural language command
 			drawChart(categories,values, numCategories, title, xAxisLabel);
@@ -207,6 +265,21 @@ int main()
 	printf("Exiting....");
 	return 0;
 }
+
+void my_printf(const char* format, ...) {
+	va_list args;
+
+	// Print the ANSI color reset code directly to stdout to avoid recursion
+	fputs(ANSI_COLOR_RESET, stdout);
+
+	va_start(args, format);
+	vprintf(format, args); // Use vprintf to print the original message with variadic arguments
+	va_end(args);
+
+	// Print the ANSI color yellow code directly to stdout to avoid recursion
+	fputs(ANSI_COLOR_YELLOW, stdout);
+}
+
 
 void enableANSIProcessing() {
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -316,6 +389,52 @@ void generateChartWithNaturalLanguage(const char* instruction, Category categori
 	}
 }
 
+// Helper function to find the index of a substring in a string
+int find_substring(const char* str, const char* substr) {
+	char* pos = strstr(str, substr);
+	if (pos == NULL)
+		return -1;
+	return (int)(pos - str);
+}
+
+// Parse JSON from the input string and update the string in place
+void parse_and_replace_json(char* input_string) {
+	// Find the beginning of the JSON block
+	int start_index = find_substring(input_string, "```json");
+	if (start_index == -1) {
+		printf("JSON block not found.\n");
+		return;
+	}
+	start_index += 6; // Move past "```json"
+
+	// Find the end of the JSON block
+	int end_index = find_substring(input_string + start_index, "```");
+	if (end_index == -1) {
+		printf("End of JSON block not found.\n");
+		return;
+	}
+
+	// Adjust the end index to consider the start of JSON block
+	end_index += start_index;
+
+	// Extract JSON string
+	int json_length = end_index - start_index;
+	char* json_string = (char*)malloc(json_length + 1);
+	strncpy(json_string, input_string + start_index, json_length);
+	json_string[json_length] = '\0';
+
+	// Process the parsed JSON data (printing in this example)
+	printf("Parsed JSON data:\n%s\n", json_string);
+
+	// Example: Modify the parsed JSON (in this case, simply append "Modified" to it)
+	strcat(json_string, " Modified");
+
+	// Replace the original JSON block with the modified JSON data
+	strcpy(input_string + start_index, json_string);
+
+	free(json_string);
+}
+
 void parseApiResponse(const char* response, Category categories[], int* numCategories, char* title, char* xAxisLabel) {
 	// Parse the JSON response using cJSON
 	cJSON* json_response = cJSON_Parse(response);
@@ -358,6 +477,9 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 
 	// debug print the content->valuestring
 	printf("[Debug] content->valuestring: %s\n", content->valuestring);
+
+	// Parse the JSON block from the content string
+	parse_and_replace_json(content->valuestring);
 
 	// Now we have the actual instruction in content->valuestring
 	// The instruction should already be in JSON format, so parse it
@@ -442,6 +564,38 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 						(*numCategories)--;
 						break;
 					}
+				}
+			}
+		}
+	}
+
+	// check if it's a create action
+	cJSON* create = cJSON_GetObjectItemCaseSensitive(instruction, "create");
+	if (create) {
+		cJSON* titleItem = cJSON_GetObjectItemCaseSensitive(create, "title");
+		if (titleItem && cJSON_IsString(titleItem)) {
+			// Make sure not to write more characters than the array can hold and set the null terminator.
+			size_t max_size = 100; // Reserving space for the null terminator
+			strncpy(title, titleItem->valuestring, max_size);
+			title[max_size] = '\0'; // Explicitly set the null terminator
+		}
+		cJSON* xAxisItem = cJSON_GetObjectItemCaseSensitive(create, "x-axis");
+		if (xAxisItem && cJSON_IsString(xAxisItem)) {
+			// Make sure not to write more characters than the array can hold and set the null terminator.
+			size_t max_size = 100; // Reserving space for the null terminator
+			strncpy(xAxisLabel, xAxisItem->valuestring, max_size);
+			xAxisLabel[max_size] = '\0'; // Explicitly set the null terminator
+		}
+		cJSON* rows = cJSON_GetObjectItemCaseSensitive(create, "rows");
+		if (rows) {
+			*numCategories = cJSON_GetArraySize(rows);
+			for (int i = 0; i < *numCategories; i++) {
+				cJSON* row = cJSON_GetArrayItem(rows, i);
+				cJSON* name = cJSON_GetObjectItemCaseSensitive(row, "name");
+				cJSON* value = cJSON_GetObjectItemCaseSensitive(row, "value");
+				if (name && value) {
+					strncpy(categories[i].name, name->valuestring, sizeof(categories[0].name) - 1);
+					categories[i].value = value->valueint;
 				}
 			}
 		}
@@ -668,23 +822,19 @@ void sortCategories(Category catergories[],Scaled values[], int numCategories, i
 void drawChart(const Category categories[], const Scaled values[], int numCategories, const char* title, const char* xAxisLabel)
 {
 	int width = 120; // Max width for bars
-	printf(ANSI_COLOR_BLUE);
-	printf("%*s\n\n", width / 2 + (int)strlen(title) / 2, title); // Center the title
+	printf(ANSI_COLOR_BLUE "%*s\n\n", width / 2 + (int)strlen(title) / 2, title); // Center the title
 
 	int max_bar_length = 0;
 	int axis_values = 0;
 	for (int i = 0; i < numCategories; i++) {
-		printf(ANSI_COLOR_YELLOW);
-		printf("%-16s |", values[i].name); // Print category name
+		printf(ANSI_COLOR_YELLOW "%-16s |", values[i].name); // Print category name
 		if (values[i].value > max_bar_length) {
 			axis_values = categories[i].value;
 			max_bar_length = values[i].value;
 		}
 		for (int j = 0; j < values[i].value; j++) {
-			printf(ANSI_COLOR_GREEN);
-			printf("X"); // Print bar
-			printf(ANSI_COLOR_RESET);
-			Sleep(5); // Delay for 50 milliseconds to animate
+			printf(ANSI_COLOR_GREEN "X" ANSI_COLOR_RESET); // Print bar
+			Sleep(5); // Delay for 5 milliseconds to animate
 		}
 		printf("\n%17s|\n", "                ");
 	}
@@ -694,15 +844,12 @@ void drawChart(const Category categories[], const Scaled values[], int numCatego
 			printf("%17s+", "                ");
 		}
 		else if (k == max_bar_length / 2 || k == max_bar_length) {
-			printf(ANSI_COLOR_MAGENTA);
-			printf("+");
-			printf(ANSI_COLOR_RESET);
+			printf(ANSI_COLOR_MAGENTA "+" ANSI_COLOR_RESET);
 		}
 		else {
-			printf(ANSI_COLOR_RED);
-			printf("-");
-			printf(ANSI_COLOR_RESET);
+			printf(ANSI_COLOR_RED "-" ANSI_COLOR_RESET);
 		}
+		Sleep(5); // Delay for 5 milliseconds to animate
 	}
 	// count number of digits in axis_values
 	int axis_length = 0;
@@ -714,23 +861,19 @@ void drawChart(const Category categories[], const Scaled values[], int numCatego
 	for (int n = 0; n <= max_bar_length; n++) {
 
 		if (n == 0) {
-			printf("\n%17s0", "                ");
+			printf(ANSI_COLOR_CYAN "\n%17s0", "                ");
 		}
 		else if (n == ((max_bar_length / 2) - (axis_length / 2))) {
-			printf(ANSI_COLOR_CYAN);
-			printf("%d", axis_values / 2);
+			printf(ANSI_COLOR_CYAN "%d", axis_values / 2);
 		}
 		else if (n == max_bar_length - axis_length) {
-			printf(ANSI_COLOR_CYAN);
-			printf("%d", axis_values);
+			printf(ANSI_COLOR_CYAN "%d", axis_values);
 		}
 		else {
 			printf(" ");
 		}
 	}
-	printf(ANSI_COLOR_BLUE);
-	printf("\n%*s\n\n", width / 2 + (int)strlen(xAxisLabel) / 2, xAxisLabel);
-	printf(ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_BLUE "\n%*s\n\n" ANSI_COLOR_RESET, width / 2 + (int)strlen(xAxisLabel) / 2, xAxisLabel);
 }
 
 void saveChartToFile(const char* filename, const Category categories[], const Scaled values[], int numCategories, const char* title, const char* xAxisLabel) {
