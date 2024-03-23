@@ -609,16 +609,16 @@ void scaleValues(Category categories[], Scaled values[], int numCategories)
 	for (int i = 0; i < numCategories; i++)
 	{
 		if (categories[i].value > max)
-			max = categories[i].value;
+			max = categories[i].value; // Store the highest value obtain from all catgeoies into max
 	}
 
-	// Scale if max is too large for display
+	// Scale if max is more than 80 and too large for display
 	if (max > 80)
 	{
 		for (int i = 0; i < numCategories; i++)
 		{
 			strcpy(values[i].name, categories[i].name);
-			values[i].value = (categories[i].value * 80) / max;
+			values[i].value = (categories[i].value * 80) / max; //scaled value obtained
 		}
 	}
 	else
@@ -626,7 +626,7 @@ void scaleValues(Category categories[], Scaled values[], int numCategories)
 		for (int i = 0; i < numCategories; i++)
 		{
 			strcpy(values[i].name, categories[i].name);
-			values[i].value = categories[i].value;
+			values[i].value = categories[i].value; //value not scaled
 		}
 	}
 }
