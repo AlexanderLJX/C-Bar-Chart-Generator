@@ -57,10 +57,12 @@ void generateChartWithNaturalLanguage(const char* instruction, Category categori
 void parseApiResponse(const char* response, Category categories[], int* numCategories, char* title, char* xAxisLabel);
 size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* userp);
 void removeTrailingWeirdCharacters(char* str);
+void enableANSIProcessing();
 
 
 int main()
 {
+	enableANSIProcessing(); // Enable ANSI color processing for Windows
 	int exitProgram = 0; // Flag to control the loop
 
 	// Variables to store user inputs
@@ -204,6 +206,23 @@ int main()
 
 	printf("Exiting....");
 	return 0;
+}
+
+void enableANSIProcessing() {
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hOut == INVALID_HANDLE_VALUE) {
+		return;
+	}
+
+	DWORD dwMode = 0;
+	if (!GetConsoleMode(hOut, &dwMode)) {
+		return;
+	}
+
+	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	if (!SetConsoleMode(hOut, dwMode)) {
+		// Handle the error if needed
+	}
 }
 
 void clearInputBuffer()
