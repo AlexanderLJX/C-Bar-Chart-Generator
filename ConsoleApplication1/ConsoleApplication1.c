@@ -550,24 +550,27 @@ int getValidatedInteger(int *output, const int validNumbers[], int validCount)
 // Implementations of getInput, scaleValues, sortCategories, drawChart, and saveChartToFile follow...
 void getInput(Category categories[], int *numCategories, char *title, char *xAxisLabel, int *sortOption)
 {
+	// Enter bar chart title
 	printf("Enter the title of the bar chart: ");
-	while (scanf(" %100[^\n]", title) != 1)
+	while (scanf(" %100[^\n]", title) != 1) //Check if input is within 100 characters
 	{
 		printf("Invalid input. Please enter a title with 100 characters or less: ");
 		clearInputBuffer(); // Assuming clearInputBuffer is uncommented and available
 	}
 	clearInputBuffer();
 
+	// Enter x-axis label value
 	printf("Enter the x-axis label: ");
 	while (scanf(" %100[^\n]", xAxisLabel) != 1)
 	{
-		printf("Invalid input. Please enter an x-axis label with 100 characters or less: ");
+		printf("Invalid input. Please enter an x-axis label with 100 characters or less: "); //Check if input is within 100 characters
 		clearInputBuffer(); // Assuming clearInputBuffer is uncommented and available
 	}
 	clearInputBuffer();
 
+	// Enter number of categories
 	printf("How many categories (max 12)? ");
-	while (getValidatedInteger(numCategories, (int[]){1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, 12) == 0)
+	while (getValidatedInteger(numCategories, (int[]){1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, 12) == 0) // Check if category value is an integer within 1 to 12
 	{
 		printf("Invalid input. Please enter a number between 1 and 12: ");
 	}
@@ -577,21 +580,23 @@ void getInput(Category categories[], int *numCategories, char *title, char *xAxi
 		printf("Enter category %d name: ", i + 1);
 		while (scanf(" %15[^\n]", categories[i].name) != 1)
 		{
-			printf("Invalid input. Please enter a category name with 15 characters or less: ");
+			printf("Invalid input. Please enter a category name with 15 characters or less: "); // Check if category name is within 15 characters
 			clearInputBuffer(); // Clears the buffer to remove invalid input
 		}
 
 		clearInputBuffer();
 
+		// Enter category value
 		printf("Enter %s value: ", categories[i].name);
-		while (getValidatedInteger(&categories[i].value, NULL, 0) == 0)
+		while (getValidatedInteger(&categories[i].value, NULL, 0) == 0) //Check if category value is an integer and is not 0
 		{
 			printf("Invalid input. Please enter an integer value for %s: ", categories[i].name);
 		}
 	}
 
+	// Sort by name or by bar length
 	printf("Sort by name (0) or by bar length (1)? ");
-	while (getValidatedInteger(sortOption, (int[]){0, 1}, 2) == 0)
+	while (getValidatedInteger(sortOption, (int[]){0, 1}, 2) == 0) //Check if the Sort Option is either 0 or 1
 	{
 		printf("Invalid input. Please enter 0 for name or 1 for bar length: ");
 	}
