@@ -610,8 +610,6 @@ void scaleValues(Category categories[], Scaled values[], int numCategories)
 	// Scale if max is too large for display
 	if (max > 80)
 	{
-		// printf("%d\n", max);
-
 		for (int i = 0; i < numCategories; i++)
 		{
 			strcpy(values[i].name, categories[i].name);
