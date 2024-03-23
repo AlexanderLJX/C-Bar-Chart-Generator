@@ -701,6 +701,18 @@ int getValidatedInteger(int *output, const int validNumbers[], int validCount)
 	return 1;
 }
 
+int isUniqueCategoryName(Category categories[], int index)
+{
+	for (int i = 0; i < index; i++)
+	{
+		if (strcmp(categories[i].name, categories[index].name) == 0)
+		{
+			return 0; // Not unique
+		}
+	}
+	return 1; // Unique
+}
+
 // Implementations of getInput, scaleValues, sortCategories, drawChart, and saveChartToFile follow...
 void getInput(Category categories[], int *numCategories, char *title, char *xAxisLabel, int *sortOption)
 {
@@ -737,6 +749,15 @@ void getInput(Category categories[], int *numCategories, char *title, char *xAxi
 			printf("Invalid input. Please enter a category name with 15 characters or less: "); // Check if category name is within 15 characters
 			clearInputBuffer(); // Clears the buffer to remove invalid input
 		}
+		while (isUniqueCategoryName(categories, i) != 1)
+		{
+			printf("Category name must be unique. Please enter a different name: ");
+			while (scanf(" %15[^\n]", categories[i].name) != 1)
+			{
+				printf("Invalid input. Please enter a category name with 15 characters or less: ");
+				clearInputBuffer();
+			}
+		}
 
 		clearInputBuffer();
 
@@ -763,27 +784,20 @@ void scaleValues(Category categories[], Scaled values[], int numCategories)
 	for (int i = 0; i < numCategories; i++)
 	{
 		if (categories[i].value > max)
-			max = categories[i].value; // Store the highest value obtain from all catgeoies into max
+			max = categories[i].value; // Store the highest value obtain from all categories into max
 	}
 
-	// Scale if max is more than 80 and too large for display
-	if (max > 80)
+	// Always scale values to fit into the max display size of 80
+	for (int i = 0; i < numCategories; i++)
 	{
-		for (int i = 0; i < numCategories; i++)
-		{
-			strcpy(values[i].name, categories[i].name);
-			values[i].value = (categories[i].value * 80) / max; //scaled value obtained
-		}
-	}
-	else
-	{
-		for (int i = 0; i < numCategories; i++)
-		{
-			strcpy(values[i].name, categories[i].name);
-			values[i].value = categories[i].value; //value not scaled
-		}
+		strcpy(values[i].name, categories[i].name); // Copy category name
+		if (max != 0) // Avoid division by zero if max is 0
+			values[i].value = (categories[i].value * 80) / max; // Scaled value obtained
+		else
+			values[i].value = 0; // If max is 0, set scaled value to 0
 	}
 }
+
 //sort functions for scaled values
 int compareByName(const void *a, const void *b)
 {
@@ -869,7 +883,7 @@ void drawChart(const Category categories[], const Scaled values[], int numCatego
 		else if (n == ((max_bar_length / 2) - (axis_length / 2))) {
 			printf(ANSI_COLOR_CYAN "%d", axis_values / 2);
 		}
-		else if (n == max_bar_length - axis_length) {
+		else if (n == max_bar_length - axis_length - 1) {
 			printf(ANSI_COLOR_CYAN "%d", axis_values);
 		}
 		else {
