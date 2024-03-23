@@ -41,7 +41,7 @@ void getInput(Category categories[], int *numCategories, char *title, char *xAxi
 void scaleValues(Category categories[], Scaled values[], int numCategories);
 void sortCategories(Category categories[],Scaled values[], int numCategories, int sortOption);
 void drawChart(const Category categories[],const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
-void saveChartToFile(const char* filename, const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
+void saveChartToFile(const char* filename, const Category categories[], const Scaled values[], int numCategories, const char* title, const char* xAxisLabel);
 void cancelData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
 void addData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
 void changeCategoryName(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
@@ -101,7 +101,7 @@ int main()
 			}
 			clearInputBuffer();
 
-			saveChartToFile(filename, values, numCategories, title, xAxisLabel);
+			saveChartToFile(filename, categories, values, numCategories, title, xAxisLabel);
 		}
 		else if (options == 2)
 		{
@@ -665,7 +665,7 @@ void drawChart(const Category categories[], const Scaled values[], int numCatego
 			printf(ANSI_COLOR_GREEN);
 			printf("X"); // Print bar
 			printf(ANSI_COLOR_RESET);
-			Sleep(10); // Delay for 50 milliseconds to animate
+			Sleep(5); // Delay for 50 milliseconds to animate
 		}
 		printf("\n%17s|\n", "                ");
 	}
@@ -714,30 +714,68 @@ void drawChart(const Category categories[], const Scaled values[], int numCatego
 	printf(ANSI_COLOR_RESET);
 }
 
-void saveChartToFile(const char *filename, const Scaled values[], int numCategories, const char *title, const char *xAxisLabel)
-{
-	FILE *file = fopen(filename, "w");
-	if (file == NULL)
-	{
+void saveChartToFile(const char* filename, const Category categories[], const Scaled values[], int numCategories, const char* title, const char* xAxisLabel) {
+	FILE* file = fopen(filename, "w");
+	if (file == NULL) {
 		printf("Error opening file!\n");
 		return;
 	}
 
-	fprintf(file, "%s\n\n", title);
-	for (int i = 0; i < numCategories; i++)
-	{
-		fprintf(file, "%-15s | ", values[i].name);
-		for (int j = 0; j < values[i].value; j++)
-		{
-			fprintf(file, "X");
+	int width = 120; // Max width for bars
+	fprintf(file, "%*s\n\n", width / 2 + (int)strlen(title) / 2, title); // Center the title
+
+	int max_bar_length = 0;
+	int axis_values = 0;
+	for (int i = 0; i < numCategories; i++) {
+		fprintf(file, "%-16s |", values[i].name); // Print category name
+		if (values[i].value > max_bar_length) {
+			axis_values = categories[i].value;
+			max_bar_length = values[i].value;
 		}
-		fprintf(file, "\n");
+		for (int j = 0; j < values[i].value; j++) {
+			fprintf(file, "X"); // Print bar
+		}
+		fprintf(file, "\n%17s|\n", "                ");
 	}
-	fprintf(file, "\n%s\n", xAxisLabel);
+	// for the x-axis
+	for (int k = 0; k <= max_bar_length; k++) {
+		if (k == 0) {
+			fprintf(file, "%17s+", "                ");
+		}
+		else if (k == max_bar_length / 2 || k == max_bar_length) {
+			fprintf(file, "+");
+		}
+		else {
+			fprintf(file, "-");
+		}
+	}
+	// count number of digits in axis_values
+	int axis_length = 0;
+	int temp = axis_values;
+	while (temp != 0) {
+		temp /= 10;
+		axis_length++;
+	}
+	for (int n = 0; n <= max_bar_length; n++) {
+		if (n == 0) {
+			fprintf(file, "\n%17s0", "                ");
+		}
+		else if (n == ((max_bar_length / 2) - (axis_length / 2))) {
+			fprintf(file, "%d", axis_values / 2);
+		}
+		else if (n == max_bar_length - axis_length) {
+			fprintf(file, "%d", axis_values);
+		}
+		else {
+			fprintf(file, " ");
+		}
+	}
+	fprintf(file, "\n%*s\n\n", width / 2 + (int)strlen(xAxisLabel) / 2, xAxisLabel);
 
 	fclose(file);
 	printf("Chart saved to %s\n", filename);
 }
+
 
 // Function to remove a category [Option 1]
 void cancelData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption)
