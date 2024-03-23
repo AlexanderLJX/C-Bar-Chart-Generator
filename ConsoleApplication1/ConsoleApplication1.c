@@ -589,14 +589,14 @@ void scaleValues(Category categories[], Scaled values[], int numCategories)
 	}
 
 	// Scale if max is too large for display
-	if (max > 100)
+	if (max > 80)
 	{
 		// printf("%d\n", max);
 
 		for (int i = 0; i < numCategories; i++)
 		{
 			strcpy(values[i].name, categories[i].name);
-			values[i].value = (categories[i].value * 100) / max;
+			values[i].value = (categories[i].value * 80) / max;
 		}
 	}
 	else
@@ -648,7 +648,7 @@ void sortCategories(Category catergories[],Scaled values[], int numCategories, i
 
 void drawChart(const Category categories[], const Scaled values[], int numCategories, const char* title, const char* xAxisLabel)
 {
-	int width = 150; // Max width for bars
+	int width = 120; // Max width for bars
 	printf(ANSI_COLOR_BLUE);
 	printf("%*s\n\n", width / 2 + (int)strlen(title) / 2, title); // Center the title
 
@@ -669,7 +669,7 @@ void drawChart(const Category categories[], const Scaled values[], int numCatego
 		}
 		printf("\n%17s|\n", "                ");
 	}
-
+	// for the x-axis
 	for (int k = 0; k <= max_bar_length; k++) {
 		if (k == 0) {
 			printf("%17s+", "                ");
@@ -685,16 +685,23 @@ void drawChart(const Category categories[], const Scaled values[], int numCatego
 			printf(ANSI_COLOR_RESET);
 		}
 	}
-
+	// count number of digits in axis_values
+	int axis_length = 0;
+	int temp = axis_values;
+	while (temp != 0) {
+		temp /= 10;
+		axis_length++;
+	}
 	for (int n = 0; n <= max_bar_length; n++) {
+
 		if (n == 0) {
 			printf("\n%17s0", "                ");
 		}
-		else if (n == max_bar_length / 2) {
+		else if (n == ((max_bar_length / 2) - (axis_length / 2))) {
 			printf(ANSI_COLOR_CYAN);
 			printf("%d", axis_values / 2);
 		}
-		else if (n == max_bar_length) {
+		else if (n == max_bar_length - axis_length) {
 			printf(ANSI_COLOR_CYAN);
 			printf("%d", axis_values);
 		}
