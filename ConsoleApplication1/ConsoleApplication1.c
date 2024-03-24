@@ -480,7 +480,7 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 	printf("[Debug] content->valuestring: %s\n", content->valuestring);
 
 	// Parse the JSON block from the content string
-	parse_and_replace_json(content->valuestring);
+	// parse_and_replace_json(content->valuestring);
 
 	// Now we have the actual instruction in content->valuestring
 	// The instruction should already be in JSON format, so parse it
