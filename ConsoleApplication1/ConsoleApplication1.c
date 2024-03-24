@@ -289,6 +289,23 @@ int main()
 	return 0;
 }
 
+void str_trim(char* str) {
+	int start = 0;
+	while (isspace(str[start])) {
+		start++;
+	}
+
+	int end = strlen(str) - 1;
+	while (end > start && isspace(str[end])) {
+		end--;
+	}
+
+	str[end + 1] = '\0';
+	if (end > start) {
+		memmove(str, str + start, end - start + 2);
+	}
+}
+
 void my_printf(const char* format, ...) {
 	va_list args;
 
@@ -784,6 +801,8 @@ void getInput(Category categories[], int *numCategories, char *title, char *xAxi
 				clearInputBuffer();
 			}
 		}
+		// remove leading and trailing whitespace
+		str_trim(categories[i].name);
 
 		clearInputBuffer();
 
@@ -1068,7 +1087,13 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
 
     do {
         printf("Enter the name of the new category: ");
-        scanf(" %15[^\n]", newCategoryName); // Read the new category name
+        while (scanf(" %15[^\n]", newCategoryName) != 1) {
+			printf("Invalid input. Please enter a category name with 15 characters or less: ");
+			clearInputBuffer(); // Clear the input buffer
+		}
+		// trim leading and trailing whitespace
+		str_trim(newCategoryName);
+
         clearInputBuffer(); // Clear the input buffer
 
         isDuplicate=false; // Reset the flag to false for each new input
@@ -1106,7 +1131,7 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
     if (confirm == 1)
     {
         // Copy the new category name to the categories array
-        strcpy(categories[*numCategories].name, newCategoryName);
+        strcpy(categories[*numCategories].name, newCategoryName, 15);
 
         (*numCategories)++; // Update the number of categories
 
@@ -1149,6 +1174,9 @@ void changeCategoryName(Category categories[], Scaled values[], int* numCategori
         clearInputBuffer();
     }
     clearInputBuffer();
+
+	// trim leading and trailing whitespace
+	str_trim(categories[modifyIndex].name);
 
     scaleValues(categories, values, *numCategories);
 
@@ -1273,6 +1301,9 @@ void readBarChartFromFile(const char* filename, Category categories[], int* numC
 
         // Truncate the category name if it's longer than 15 characters
         tempName[15] = '\0'; // Ensure null-termination
+		// trim leading and trailing whitespace
+		str_trim(tempName);
+		
         strncpy(categories[i].name, tempName, sizeof(categories[i].name));
         
         // Read the category value
