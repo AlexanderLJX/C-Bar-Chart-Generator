@@ -104,7 +104,7 @@ int main()
 		char instruction[1024];
 		char message[4096];
 		const char* longString =
-			"I'm about to give you some instructions for creating a horizontal bar chart. Do not reply with extra text like \"Here's the JSON output for your instruction:\" and do not surround the output in code blocks like ```json ```. You are only to return the output in pure JSON format. If you are unsure about a specific value in the json, just make up something for the json.\n"
+			"I'm about to give you some instructions for creating a horizontal bar chart. There are only 3 different attributes of the table: title, x-axis, and rows. Do not reply with extra text like \"Here's the JSON output for your instruction:\" and do not surround the output in code blocks like ```json ```. You are only to return the output in pure JSON format. If you are unsure about a specific value in the json, just make up something for the json.\n"
 			"for example, if the instruction is: \"Create a graph for a b c given the values are 100,200,300\" you will only reply something like the following:\n"
 			"{\"create\":{\"title\": \"Bar chart of a, b, c\", \"x-axis\": \"values\", \"rows\": [{\"name\": \"a\", \"value\": 100},{\"name\": \"b\", \"value\": 200},{\"name\": \"c\", \"value\": 300}]}}\n"
 			"\n"
@@ -114,7 +114,7 @@ int main()
 			"If the instruction is: \"electricity price in singapore in years 2015-2020\" you will return something like the following:\n"
 			"{\"create\": {\"title\": \"Electricity Price in Singapore (2015-2020)\", \"x-axis\": \"Cents per kWh\", \"rows\": [{\"name\": \"2015\", \"value\": 26},{\"name\": \"2016\", \"value\": 23},{\"name\": \"2017\", \"value\": 24},{\"name\": \"2018\", \"value\": 26},{\"name\": \"2019\", \"value\": 27},{\"name\": \"2020\", \"value\": 26}]}}\n"
 			"\n"
-			"This is the instruction I want you to reply a json to:";
+			"This is the instruction I want you to reply a json to:\n";
 
 		// Copy the predefined message into the modifiable buffer
 		strncpy(message, longString, sizeof(message) - 1);
@@ -219,7 +219,7 @@ int main()
 			char instruction[1024];
 			char message[4096];
 			const char* longString =
-				"I'm about to give you some instructions for changing the parameters of a bar chart. Do not reply with extra text like \"Here's the JSON output for your instruction:\" and do not surround the output in code blocks. I want you to return the output in pure JSON format. \n"
+				"I'm about to give you some instructions for changing the parameters of a bar chart. There are only 3 different attributes of the table: title, x-axis, and row. Do not reply with extra text like \"Here's the JSON output for your instruction:\" and do not surround the output in code blocks. I want you to return the output in pure JSON format. \n"
 				"for example, if the instruction is: \"Change the name of the chart to price of cars and change the xaxis to dollars\" you will return exactly the following:\n"
 				"{\"change\":{\"title\": \"price of cars\", \"x-axis\": \"dollars\"}}\n"
 				"\n"
@@ -233,7 +233,7 @@ int main()
 				"{\"change\":{\"title\": \"price of cars\", \"row\": {\"name\": \"bye bye\", \"changed_name\": \"good bye\"}}}\n"
 				"\n"
 				"If the instruction is: \"change the xaxis of the table to good night punpun and change the row named morning pupun to to value 6586\" you will return exactly the following:\n"
-				"{\"change\":{\"title\": \"good night punpun\", \"row\": {\"name\": \"morning punpun\", \"changed_value\": 6586}}}\n"
+				"{\"change\":{\"x-axis\": \"good night punpun\", \"row\": {\"name\": \"morning punpun\", \"changed_value\": 6586}}}\n"
 				"\n"
 				"\n"
 				"This is the instruction I want you to reply a json to:\n";
