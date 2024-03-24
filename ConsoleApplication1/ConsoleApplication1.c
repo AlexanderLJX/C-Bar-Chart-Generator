@@ -152,13 +152,14 @@ int main()
 	{
 		// Collect user input manually
 		getInput(categories, &numCategories, title, xAxisLabel, &sortOption);
+		// Sort categories based on user's choice
+		sortCategories(categories, values, numCategories, sortOption);
 	}
 	}
 	// Optionally scale values to fit the chart
 	scaleValues(categories, values, numCategories);
 
-	// Sort categories based on user's choice
-	sortCategories(categories,values, numCategories, sortOption);
+	
 
 	// Draw the chart
 	drawChart(categories,values, numCategories, title, xAxisLabel);
@@ -500,7 +501,7 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 	printf("[Debug] content->valuestring: %s\n", content->valuestring);
 
 	// Parse the JSON block from the content string
-	parse_and_replace_json(content->valuestring);
+	// parse_and_replace_json(content->valuestring);
 
 	// Now we have the actual instruction in content->valuestring
 	// The instruction should already be in JSON format, so parse it
@@ -536,7 +537,7 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 				for (int i = 0; i < *numCategories; i++) {
 					if (strcmp(categories[i].name, name->valuestring) == 0) {
 						// Update the category name
-						strncpy(categories[i].name, changed_name->valuestring, sizeof(categories[0].name) - 1);
+						strncpy(categories[i].name, changed_name->valuestring, 15);
 						break;
 					}
 				}
@@ -562,7 +563,8 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 			cJSON* name = cJSON_GetObjectItemCaseSensitive(row, "name");
 			cJSON* value = cJSON_GetObjectItemCaseSensitive(row, "value");
 			if (name && value) {
-				strncpy(categories[*numCategories].name, name->valuestring, sizeof(categories[0].name) - 1);
+				// only copy the first 15 characters of the name into the categories array
+				strncpy(categories[*numCategories].name, name->valuestring, 15);
 				categories[*numCategories].value = value->valueint;
 				(*numCategories)++;
 			}
@@ -615,7 +617,9 @@ void parseApiResponse(const char* response, Category categories[], int* numCateg
 				cJSON* name = cJSON_GetObjectItemCaseSensitive(row, "name");
 				cJSON* value = cJSON_GetObjectItemCaseSensitive(row, "value");
 				if (name && value) {
-					strncpy(categories[i].name, name->valuestring, sizeof(categories[0].name) - 1);
+					strncpy(categories[i].name, name->valuestring, 15);
+					// add null terminator to prevent buffer overflow
+					categories[i].name[15] = '\0';
 					categories[i].value = value->valueint;
 				}
 			}
@@ -896,15 +900,21 @@ void drawChart(const Category categories[], const Scaled values[], int numCatego
 		temp /= 10;
 		axis_length++;
 	}
+	int half_axis_length = 0;
+	int temp2 = axis_values / 2;
+	while (temp2 != 0) {
+		temp2 /= 10;
+		half_axis_length++;
+	}
 	for (int n = 0; n <= max_bar_length; n++) {
 
 		if (n == 0) {
 			printf(ANSI_COLOR_CYAN "\n%17s0", "                ");
 		}
-		else if (n == ((max_bar_length / 2) - (axis_length / 2))) {
+		else if (n == ((max_bar_length / 2) - (half_axis_length/2))) {
 			printf(ANSI_COLOR_CYAN "%d", axis_values / 2);
 		}
-		else if (n == max_bar_length - axis_length - 1) {
+		else if (n == max_bar_length - (axis_length/2) - half_axis_length + 1) {
 			printf(ANSI_COLOR_CYAN "%d", axis_values);
 		}
 		else {
