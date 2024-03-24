@@ -1020,14 +1020,14 @@ void cancelData(Category categories[], Scaled values[], int* numCategories, char
     int confirm = 0;
     while (1)
     {
-        printf("Are you sure you want to remove category %d? (1 for yes, 2 for no): ", choice);
+        printf("Are you sure you want to remove category %d? (y/n): ", choice);
         if (getValidatedInteger(&confirm, (int[]){1, 2}, 2) == 1)
         {
             break; // Valid input
         }
         else
         {
-            printf("Invalid choice. Please enter 1 for yes or 2 for no.\n");
+            printf("Invalid choice. Please enter 'y' or 'n'.\n");
         }
     }
 
@@ -1096,14 +1096,14 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
     int confirm = 0;
     while (1)
     {
-        printf("Are you sure you want to add category %s with value %d? (1 for yes, 2 for no): ", newCategoryName, categories[*numCategories].value);
+        printf("Are you sure you want to add category %s with value %d? (y/n): ", newCategoryName, categories[*numCategories].value);
         if (getValidatedInteger(&confirm, (int[]){1, 2}, 2) == 1)
         {
             break; // Valid input
         }
         else
         {
-            printf("Invalid choice. Please enter 1 for yes or 2 for no.\n");
+            printf("Invalid choice. Please enter 'y' or 'n'.\n");
         }
     }
 
