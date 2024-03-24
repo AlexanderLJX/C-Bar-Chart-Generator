@@ -60,6 +60,7 @@ size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* user
 void removeTrailingWeirdCharacters(char* str);
 void enableANSIProcessing();
 void my_printf(const char* format, ...);
+void readBarChartFromFile(const char* filename, Category categories[], int* numCategories, char* title, char* xAxisLabel, int* sortOption);
 
 int main()
 {
@@ -89,6 +90,26 @@ int main()
 	
 
 	printf("%s", welcomeMessage);
+
+
+ // Prompt the user for a file to read
+    char filename[101];
+    printf("Do you have a file to read? (y/n): ");
+    char choice;
+    while (scanf(" %c", &choice) != 1 || (choice != 'y' && choice != 'n')) {
+        printf("Invalid input. Please enter 'y' or 'n': ");
+        clearInputBuffer(); // Assuming clearInputBuffer is uncommented and available
+    }
+    clearInputBuffer();
+
+    if (choice == 'y') {
+        printf("Enter the file path: ");
+        scanf("%100s", filename);
+        clearInputBuffer();
+
+        // Read data from the file
+        readBarChartFromFile(filename, categories, &numCategories, title, xAxisLabel, &sortOption);
+    } else {
 
 	printf("Would you like to generate a chart using natural language? (y/n): ");
 	char choice;
@@ -132,7 +153,7 @@ int main()
 		// Collect user input manually
 		getInput(categories, &numCategories, title, xAxisLabel, &sortOption);
 	}
-
+	}
 	// Optionally scale values to fit the chart
 	scaleValues(categories, values, numCategories);
 
@@ -141,7 +162,7 @@ int main()
 
 	// Draw the chart
 	drawChart(categories,values, numCategories, title, xAxisLabel);
-
+	
 	while (!exitProgram)
 	{
 		// Ask if the user wants to save the chart and proceed if so
@@ -1192,3 +1213,35 @@ void changeXLabel(Category categories[], Scaled values[], int* numCategories, ch
 	drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
 
+// Function to read data from a file
+void readBarChartFromFile(const char* filename, Category categories[], int* numCategories, char* title, char* xAxisLabel, int* sortOption) {
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file! Please ensure the file path is correct and the file is accessible.\n");
+        exit(EXIT_FAILURE); // Exit the program if the file cannot be opened
+    }
+
+    // Read the title
+    fscanf(file, "Title of bar chart : %[^\n]", title);
+    fgetc(file); // Consume the newline character
+
+    // Read the x-axis label
+    fscanf(file, "X-axis label : %[^\n]", xAxisLabel);
+    fgetc(file); // Consume the newline character
+
+    // Read the number of categories
+    fscanf(file, "number of categories(s) :%d", numCategories);
+    fgetc(file); // Consume the newline character
+
+    // Read each category's name and value
+    for (int i = 0; i < *numCategories; i++) {
+        fscanf(file, "%s %d", categories[i].name, &categories[i].value);
+        fgetc(file); // Consume the newline character
+    }
+
+    // Read the sort option
+    fscanf(file, "sort option (0) for by name (1) for by bar length: %d", sortOption);
+    fgetc(file); // Consume the newline character
+
+    fclose(file);
+}
