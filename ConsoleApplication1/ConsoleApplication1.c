@@ -92,7 +92,7 @@ int main()
 
 	printf("Would you like to generate a chart using natural language? (y/n): ");
 	char choice;
-	while (scanf(" %c", &choice) != 1 || (choice != 'y' && choice != 'n'))
+	while (scanf(" %c", &choice) != 1 || (choice != 'y' && choice != 'n'))	//loops if input is not 'y' or 'n'
 	{
 		printf("Invalid input. Please enter 'y' or 'n': ");
 		clearInputBuffer();
@@ -147,14 +147,14 @@ int main()
 		// Ask if the user wants to save the chart and proceed if so
 		int options;
 		printf("What would you like to do with the chart? Choose an option below:\n1.Save the chart.\n2.Modify the chart.\n3.Use natural language to modify the chart.\n4.Exit Program\n");
-		while (getValidatedInteger(&options, (int[]){ 1, 2, 3, 4 }, 4) == 0) {
-			printf("Invalid input. Please enter 1, 2, or 3: ");
+		while (getValidatedInteger(&options, (int[]){ 1, 2, 3, 4 }, 4) == 0) {	//loops if input is not 1,2,3 or 4
+			printf("Invalid input. Please enter 1, 2, 3 or 4: ");
 		}
-		if (options == 1)
+		if (options == 1)	//option to save chart
 		{
 			char filename[101];
 			printf("Enter filename to save: ");
-			while (scanf(" %100[^\n]", filename) != 1 || !isValidWindowsFilename(filename))
+			while (scanf(" %100[^\n]", filename) != 1 || !isValidWindowsFilename(filename))	//loops if number of characters is more than 100
 			{
 				printf("Invalid input. Please enter less than 100 characters: ");
 				clearInputBuffer();
@@ -163,41 +163,41 @@ int main()
 
 			saveChartToFile(filename, categories, values, numCategories, title, xAxisLabel);
 		}
-		else if (options == 2)
+		else if (options == 2)	//option to modify chart
 		{
 			int modifyOptions = 0;
 			printf("Choose an option to modify the chart. Input an option from below:\n1. Remove data\n2. Add data\n3. Modify a category name\n4. Modify a category value\n5. Change chart title\n6. Change x-axis label\n7. Re-sort Chart\n8. Exit Program\n");
-			while (getValidatedInteger(&modifyOptions, (int[]){ 1, 2, 3, 4, 5, 6, 7, 8}, 8) == 0) {
+			while (getValidatedInteger(&modifyOptions, (int[]){ 1, 2, 3, 4, 5, 6, 7, 8}, 8) == 0) { //loops if input is not 1,2,3,4,5,6,7 or 8
 				printf("Invalid input. Please enter 1, 2, 3, 4, 5, 6 ,7 or 8: ");
 				clearInputBuffer();
 			}
 
 			if (modifyOptions == 1)
 			{
-				cancelData(categories, values, &numCategories, title, xAxisLabel, &sortOption);
+				cancelData(categories, values, &numCategories, title, xAxisLabel, &sortOption);	// Function to remove a category [Option 1]
 			}
 			else if (modifyOptions == 2)
 			{
-				addData(categories, values, &numCategories, title, xAxisLabel,&sortOption);
+				addData(categories, values, &numCategories, title, xAxisLabel,&sortOption);	// Function to add a category [Option 2]
             }
             else if (modifyOptions == 3) {
-                changeCategoryName(categories, values, &numCategories, title, xAxisLabel, &sortOption);
+                changeCategoryName(categories, values, &numCategories, title, xAxisLabel, &sortOption);	// Function to modify a category name [Option 3]
             }
             else if (modifyOptions == 4) {
-                changeCategoryValue(categories, values, &numCategories, title, xAxisLabel, &sortOption);
+                changeCategoryValue(categories, values, &numCategories, title, xAxisLabel, &sortOption);	// Function to modify a category value [Option 4]
             }
 			else if (modifyOptions == 5) {
-				changeTitle(categories, values, &numCategories, title, xAxisLabel);
+				changeTitle(categories, values, &numCategories, title, xAxisLabel);	// Function to change chart title [Option 5]
 			}
 			else if (modifyOptions == 6)
 			{
-				changeXLabel(categories, values, &numCategories, title, xAxisLabel);
+				changeXLabel(categories, values, &numCategories, title, xAxisLabel);	// Function to change x-axis label [Option 6]
 			}
 			else if (modifyOptions == 7)
 			{
 
 				printf("Choose new sorting method : Sort by name (0) or by bar length (1)? ");
-						while (getValidatedInteger(&sortOption, (int[]){0, 1}, 2) == 0)
+						while (getValidatedInteger(&sortOption, (int[]){0, 1}, 2) == 0)	//loops if input is not 0 or 1
 						{
 							printf("Invalid input. Please enter 0 for name or 1 for bar length: ");
 							clearInputBuffer();
@@ -214,7 +214,7 @@ int main()
 				exitProgram = 1; // Exit the loop and program
 			}
 		}
-		else if (options == 3) {
+		else if (options == 3) {	//option to use natural langauge to modify the chart
 			char instruction[1024];
 			char message[4096];
 			const char* longString =
@@ -1110,7 +1110,7 @@ void changeCategoryValue(Category categories[], Scaled values[], int* numCategor
 // Function to change chart title [Option 5]
 void changeTitle(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel) {
 	printf("Enter the new title of the bar chart: ");
-	while (scanf(" %100[^\n]", title) != 1)
+	while (scanf(" %100[^\n]", title) != 1)	//loops if number of characters is more than 100
 	{
 		printf("Invalid input. Please enter a title with 100 characters or less: ");
 		clearInputBuffer(); // Assuming clearInputBuffer is uncommented and available
@@ -1128,7 +1128,7 @@ void changeTitle(Category categories[], Scaled values[], int* numCategories, cha
 // Function to change x-axis label [Option 6]
 void changeXLabel(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel) {
 	printf("Enter the new x-axis label: ");
-	while (scanf(" %100[^\n]", xAxisLabel) != 1)
+	while (scanf(" %100[^\n]", xAxisLabel) != 1)	//loops if number of characters is more than 100
 	{
 		printf("Invalid input. Please enter an x-axis label with 100 characters or less: ");
 		clearInputBuffer(); // Assuming clearInputBuffer is uncommented and available
