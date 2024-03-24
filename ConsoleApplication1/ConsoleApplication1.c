@@ -959,39 +959,63 @@ void saveChartToFile(const char* filename, const Category categories[], const Sc
 // Function to remove a category [Option 1]
 void cancelData(Category categories[], Scaled values[], int* numCategories, char* title, char* xAxisLabel, int* sortOption)
 {
-	printf("Select a category to remove (enter category number):\n");
-	for (int i = 0; i < *numCategories; i++)
-	{
-		printf("%d. %s\n", i + 1, categories[i].name);
-	}
+    printf("Select a category to remove (enter category number):\n");
+    for (int i = 0; i < *numCategories; i++)
+    {
+        printf("%d. %s\n", i + 1, categories[i].name);
+    }
 
-	int choice = 0;
-	while (1)
-	{
-		printf("Your choice: ");
-		if (getValidatedInteger(&choice, (int[]){1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, *numCategories) == 1)
-		{
-			break; // Valid input
-		}
-		else
-		{
-			printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
-		}
-	}
+    int choice = 0;
+    while (1)
+    {
+        printf("Your choice: ");
+        if (getValidatedInteger(&choice, (int[]){1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, *numCategories) == 1)
+        {
+            break; // Valid input
+        }
+        else
+        {
+            printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
+        }
+    }
 
-	// Adjust for zero-based indexing
-	int removeIndex = choice - 1;
+    // Confirmation prompt
+    int confirm = 0;
+    while (1)
+    {
+        printf("Are you sure you want to remove category %d? (1 for yes, 2 for no): ", choice);
+        if (getValidatedInteger(&confirm, (int[]){1, 2}, 2) == 1)
+        {
+            break; // Valid input
+        }
+        else
+        {
+            printf("Invalid choice. Please enter 1 for yes or 2 for no.\n");
+        }
+    }
 
-	// Shift elements left if necessary
-	for (int i = removeIndex; i < *numCategories - 1; i++)
-	{
-		categories[i] = categories[i + 1];
-	}
-	(*numCategories)--; // Decrement the number of categories
+    // If the user confirms the removal, proceed with the removal
+    if (confirm == 1)
+    {
+        // Adjust for zero-based indexing
+        int removeIndex = choice - 1;
 
-	// Re-scale and sort values according to the current sort option
-	scaleValues(categories, values, *numCategories);
-	sortCategories(categories,values, *numCategories, *sortOption);
+        // Shift elements left if necessary
+        for (int i = removeIndex; i < *numCategories - 1; i++)
+        {
+            categories[i] = categories[i + 1];
+        }
+        (*numCategories)--; // Decrement the number of categories
+
+        // Re-scale and sort values according to the current sort option
+        scaleValues(categories, values, *numCategories);
+        sortCategories(categories,values, *numCategories, *sortOption);
+        
+    }
+    else
+    {
+        printf("Operation cancelled. No data was removed.\n");
+    }
 	drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
 
@@ -1003,6 +1027,7 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
 {
     if (*numCategories == MAX_CATEGORIES) {
         printf("Maximum number of categories reached (%d).\n", MAX_CATEGORIES);
+        drawChart(categories,values, *numCategories, title, xAxisLabel); // Redraw the chart
         return;
     }
 
@@ -1013,8 +1038,8 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
         printf("Enter the name of the new category: ");
         scanf(" %15[^\n]", newCategoryName); // Read the new category name
         clearInputBuffer(); // Clear the input buffer
-		
-        isDuplicate=false;// Reset the flag to false for each new input
+
+        isDuplicate=false; // Reset the flag to false for each new input
         // Check for duplicate names
         for (int i = 0; i < *numCategories; i++) {
             if (strcmp(categories[i].name, newCategoryName) == 0) {
@@ -1025,21 +1050,45 @@ void addData(Category categories[], Scaled values[], int* numCategories, char* t
         }
     } while (isDuplicate); // Loop until a unique name is entered
 
-    // Copy the new category name to the categories array
-    strcpy(categories[*numCategories].name, newCategoryName);
-
     printf("Enter the value of the new category (numeric only): ");
     while (getValidatedInteger(&categories[*numCategories].value, NULL, 0) == 0) {
         printf("Invalid input. Please enter a numeric value: ");
     }
 
-    (*numCategories)++; // Update the number of categories
+    // Confirmation prompt
+    int confirm = 0;
+    while (1)
+    {
+        printf("Are you sure you want to add category %s with value %d? (1 for yes, 2 for no): ", newCategoryName, categories[*numCategories].value);
+        if (getValidatedInteger(&confirm, (int[]){1, 2}, 2) == 1)
+        {
+            break; // Valid input
+        }
+        else
+        {
+            printf("Invalid choice. Please enter 1 for yes or 2 for no.\n");
+        }
+    }
 
-    scaleValues(categories, values, *numCategories); // Optionally scale values to fit the chart
+    // If the user confirms the addition, proceed with the addition
+    if (confirm == 1)
+    {
+        // Copy the new category name to the categories array
+        strcpy(categories[*numCategories].name, newCategoryName);
 
-    sortCategories(categories,values, *numCategories, *sortOption); // Sort categories based on user's choice
+        (*numCategories)++; // Update the number of categories
 
-    drawChart(categories,values, *numCategories, title, xAxisLabel); // Draw the chart
+        scaleValues(categories, values, *numCategories); // Optionally scale values to fit the chart
+
+        sortCategories(categories,values, *numCategories, *sortOption); // Sort categories based on user's choice
+    }
+    else
+    {
+        printf("Operation cancelled. No data was added.\n");
+    }
+
+    // Redraw the chart regardless of whether data was added or not
+    drawChart(categories,values, *numCategories, title, xAxisLabel);
 }
 
 // Function to modify a category name [Option 3]
