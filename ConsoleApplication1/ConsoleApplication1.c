@@ -184,6 +184,11 @@ int main()
 			}
 			clearInputBuffer();
 
+			// Check if the filename contains an extension
+			if (!strstr(filename, ".txt")) {
+				strcat(filename, ".txt"); // Append .txt if not already present
+			}
+
 			saveChartToFile(filename, categories, values, numCategories, title, xAxisLabel);
 		}
 		else if (options == 2)	//option to modify chart
