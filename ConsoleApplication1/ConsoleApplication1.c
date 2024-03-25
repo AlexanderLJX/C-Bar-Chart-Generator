@@ -299,6 +299,7 @@ int main()
 	return 0;
 }
 
+// Trim the leading and trailing spaces from a string
 void str_trim(char *str)
 {
 	int start = 0;
@@ -320,6 +321,7 @@ void str_trim(char *str)
 	}
 }
 
+// overwrite printf to use ANSI color codes
 void my_printf(const char *format, ...)
 {
 	va_list args;
@@ -335,6 +337,7 @@ void my_printf(const char *format, ...)
 	fputs(ANSI_COLOR_YELLOW, stdout);
 }
 
+// Enable ANSI color processing for Windows
 void enableANSIProcessing()
 {
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -365,6 +368,36 @@ void clearInputBuffer()
 	}
 }
 
+// Function: WriteMemoryCallback
+// ------------------------------
+// This callback function is used by libcurl to handle data received from a server.
+// It is designed to append the received data to a dynamically allocated string,
+// allowing the data to be accumulated in memory.
+//
+// Parameters:
+// contents - Pointer to the received data.
+// size - Always 1 in libcurl's current implementation.
+// nmemb - Number of bytes in the received data.
+// userp - User-defined pointer passed from curl_easy_setopt; expected to be a pointer to a dynamically allocated string.
+//
+// Returns:
+// The function returns the number of bytes processed. If this number differs from
+// the number of bytes passed to the function (size * nmemb), libcurl will treat it
+// as an error and stop the transfer.
+//
+// This function calculates the real size of the received data (size * nmemb), reallocates
+// the user-provided buffer to accommodate the new data, and appends the new data to the buffer.
+// It ensures the buffer is null-terminated and updates the buffer's size accordingly.
+//
+// Note: If realloc fails due to insufficient memory, the function returns 0, signaling an error
+// to libcurl and causing the transfer to stop.
+//
+// The user-defined pointer (userp) is expected to point to a structure or buffer that is used
+// to accumulate the received data. This example assumes it's a pointer to a dynamically allocated
+// string, but it could be adapted to use a more complex structure if needed.
+//
+// This callback function is typically set with curl_easy_setopt, using the CURLOPT_WRITEFUNCTION
+// option, and the user-defined pointer is set with CURLOPT_WRITEDATA.
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
 	size_t real_size = size * nmemb;
@@ -399,6 +432,28 @@ void removeTrailingWeirdCharacters(char *str)
 	}
 }
 
+
+// Function: generateChartWithNaturalLanguage
+// -------------------------------------------
+// This function sends a natural language instruction to a server via HTTP POST request,
+// receives a JSON response, and updates the provided structures based on the response.
+//
+// The function uses libcurl for HTTP communication and cJSON for JSON parsing. It demonstrates
+// constructing a JSON payload, setting up and executing a POST request with libcurl, handling
+// the response, and cleaning up resources.
+//
+// Parameters:
+// instruction - A natural language instruction that will be sent to the server.
+// categories - An array of Category structures to be updated based on the server's response.
+// numCategories - A pointer to an integer that holds the number of categories. This value gets updated.
+// title - A character array to store the extracted title from the server's response.
+// xAxisLabel - A character array to store the extracted xAxis label from the server's response.
+//
+// The function assumes the server's endpoint is "http://localhost:8080/v1/chat/completions" and
+// expects the server to return a JSON response that can be parsed to update the provided structures.
+//
+// Note: The function uses dynamic memory allocation for the response buffer and ensures to free it
+// before exiting. It also demonstrates proper error handling for both libcurl and cJSON operations.
 void generateChartWithNaturalLanguage(const char *instruction, Category categories[], int *numCategories, char *title, char *xAxisLabel)
 {
 	CURL *curl;
@@ -464,7 +519,29 @@ int find_substring(const char *str, const char *substr)
 	return (int)(pos - str);
 }
 
-// Parse JSON from the input string and update the string in place
+// Function: parse_and_replace_json
+// ---------------------------------
+// Parses a JSON block from an input string and modifies the string in place to include any changes.
+//
+// This function searches for a JSON block within the input string, identified by the markers "```json" and "```".
+// If a JSON block is found, it is extracted, processed, and the original block within the input string is replaced
+// with the modified JSON data. This example demonstrates appending " Modified" to the original JSON data.
+//
+// Parameters:
+// input_string - A mutable string containing the input data. This string is modified in place.
+//
+// Note: The function assumes the presence of a single JSON block within the input string. It does not handle
+// multiple JSON blocks or nested JSON structures. Error handling is minimal, focusing on the presence of the
+// JSON block markers.
+//
+// The function demonstrates basic string manipulation techniques in C, including searching for substrings,
+// extracting a substring, and replacing part of a string. It uses dynamic memory allocation for the extracted
+// JSON string and ensures proper memory deallocation.
+//
+// Usage:
+// This function can be used in scenarios where it's necessary to parse and modify JSON data embedded within
+// a larger string. It's a simplified example intended for educational purposes and may require modifications
+// for production use, including enhanced error handling and support for complex JSON structures.
 void parse_and_replace_json(char *input_string)
 {
 	// Find the beginning of the JSON block
@@ -505,6 +582,52 @@ void parse_and_replace_json(char *input_string)
 	free(json_string);
 }
 
+// Function: parseApiResponse
+// --------------------------
+// Parses the API response to extract relevant information and populate the provided structures.
+//
+// This function takes a JSON formatted string as input and extracts the title, xAxisLabel, and updates
+// the categories array based on the instructions found within the JSON structure. It handles various
+// actions such as 'change', 'add', 'delete', and 'create' specified within the JSON to modify the
+// categories array accordingly.
+//
+// Parameters:
+// response - A JSON formatted string containing the API response.
+// categories - An array of Category structures to be updated based on the API response.
+// numCategories - A pointer to an integer that holds the number of categories. This value gets updated.
+// title - A character array to store the extracted title from the API response.
+// xAxisLabel - A character array to store the extracted xAxis label from the API response.
+//
+// Note: The function assumes the first choice in the 'choices' array is the relevant one and processes
+//       only that. It also assumes a maximum size for title and xAxisLabel arrays and ensures not to
+//       overflow them.
+//
+// The function utilizes cJSON for parsing the JSON structure. It performs error checking at each step
+// to ensure the expected fields are present and correctly formatted. In case of an error, it prints
+// an appropriate message to stderr and exits early.
+//
+// The function also demonstrates the use of strncpy for safe string copying, ensuring buffer overflow
+// is prevented by explicitly setting the null terminator.
+//
+// Usage of cJSON:
+// - cJSON_Parse: Parses the JSON formatted string.
+// - cJSON_GetObjectItemCaseSensitive: Retrieves an item from the JSON object with case sensitivity.
+// - cJSON_IsArray, cJSON_IsString: Checks if the item is an array or string respectively.
+// - cJSON_GetArrayItem: Retrieves an item from the JSON array by index.
+//
+// Example of actions handled:
+// - Change: Updates the title, xAxisLabel, and modifies category names and values based on 'change' instructions.
+// - Add: Adds new categories based on 'add' instructions.
+// - Delete: Removes categories based on 'delete' instructions.
+// - Create: Populates the categories array based on 'create' instructions, including setting the title and xAxisLabel.
+//
+// Note: The function assumes a predefined maximum number of categories (MAX_CATEGORIES) and a maximum size for
+//       category names. It carefully manages the size of copied strings to avoid buffer overflows.
+//
+// Upon successful parsing and processing of the API response, the categories array, numCategories, title,
+// and xAxisLabel are updated to reflect the changes dictated by the API response.
+//
+// The function concludes by freeing the allocated cJSON structure to prevent memory leaks.
 void parseApiResponse(const char *response, Category categories[], int *numCategories, char *title, char *xAxisLabel)
 {
 	// Parse the JSON response using cJSON
@@ -886,6 +1009,7 @@ void getInput(Category categories[], int *numCategories, char *title, char *xAxi
 	}
 }
 
+// Function to scale the values to fit the display size
 void scaleValues(Category categories[], Scaled values[], int numCategories)
 {
 	// Example scaling logic (customize as needed)
