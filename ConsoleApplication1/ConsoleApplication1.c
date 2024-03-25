@@ -46,8 +46,8 @@ void cancelData(Category categories[], Scaled values[], int *numCategories, char
 void addData(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel, int *sortOption);
 void changeCategoryName(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel, int *sortOption);
 void changeCategoryValue(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel, int *sortOption);
-void changeTitle(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel);
-void changeXLabel(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel);
+void changeTitle(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel, int *sortOption);
+void changeXLabel(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel, int *sortOption);
 int getValidatedInteger(int *output, const int validNumbers[], int validCount);
 void clearInputBuffer();
 void clearInputBufferfile();
@@ -220,11 +220,11 @@ int main()
 			}
 			else if (modifyOptions == 5)
 			{
-				changeTitle(categories, values, &numCategories, title, xAxisLabel); // Function to change chart title [Option 5]
+				changeTitle(categories, values, &numCategories, title, xAxisLabel, &sortOption); // Function to change chart title [Option 5]
 			}
 			else if (modifyOptions == 6)
 			{
-				changeXLabel(categories, values, &numCategories, title, xAxisLabel); // Function to change x-axis label [Option 6]
+				changeXLabel(categories, values, &numCategories, title, xAxisLabel, &sortOption); // Function to change x-axis label [Option 6]
 			}
 			else if (modifyOptions == 7)
 			{
@@ -1325,7 +1325,7 @@ void changeCategoryValue(Category categories[], Scaled values[], int *numCategor
 }
 
 // Function to change chart title [Option 5]
-void changeTitle(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel)
+void changeTitle(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel, int *sortOption)
 {
 	printf("Enter the new title of the bar chart: ");
 	while (scanf(" %100[^\n]", title) != 1) // loops if number of characters is more than 100
@@ -1337,14 +1337,13 @@ void changeTitle(Category categories[], Scaled values[], int *numCategories, cha
 
 	scaleValues(categories, values, *numCategories); // Values are scaled again
 
-	int sortOption = 0; // Assume sorting option is decided here or passed in some way
 	sortCategories(categories, values, *numCategories, sortOption);
 
 	drawChart(categories, values, *numCategories, title, xAxisLabel); //Chart is redrawn
 }
 
 // Function to change x-axis label [Option 6]
-void changeXLabel(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel)
+void changeXLabel(Category categories[], Scaled values[], int *numCategories, char *title, char *xAxisLabel, int *sortOption)
 {
 	printf("Enter the new x-axis label: ");
 	while (scanf(" %100[^\n]", xAxisLabel) != 1) // loops if number of characters is more than 100
@@ -1356,7 +1355,6 @@ void changeXLabel(Category categories[], Scaled values[], int *numCategories, ch
 
 	scaleValues(categories, values, *numCategories);
 
-	int sortOption = 0; // Assume sorting option is decided here or passed in some way
 	sortCategories(categories, values, *numCategories, sortOption);
 
 	drawChart(categories, values, *numCategories, title, xAxisLabel);
