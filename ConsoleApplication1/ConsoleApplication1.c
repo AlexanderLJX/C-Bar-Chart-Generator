@@ -1124,14 +1124,14 @@ void cancelData(Category categories[], Scaled values[], int *numCategories, char
 	int confirm = 0;
 	while (1)
 	{
-		printf("Are you sure you want to remove category %d? (y/n): ", choice);
+		printf("Are you sure you want to remove category %d? (1 for 'yes'/2 for 'no'): ", choice);
 		if (getValidatedInteger(&confirm, (int[]){1, 2}, 2) == 1)
 		{
 			break; // Valid input
 		}
 		else
 		{
-			printf("Invalid choice. Please enter 'y' or 'n'.\n");
+			printf("Invalid choice. Please enter 1 for 'yes' or 2 for 'no'.\n");
 		}
 	}
 
