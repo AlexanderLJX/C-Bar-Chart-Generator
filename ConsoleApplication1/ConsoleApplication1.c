@@ -1299,7 +1299,7 @@ void changeCategoryValue(Category categories[], Scaled values[], int *numCategor
 	{
 		if (getValidatedInteger(&choice, (int[]){1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, *numCategories) == 1)
 		{
-			// Input must be an integer that is within 1 to 12
+			// Input must be an integer that is within the range of existing categories.
 			break; // Break if valid input
 		}
 		else
@@ -1335,12 +1335,12 @@ void changeTitle(Category categories[], Scaled values[], int *numCategories, cha
 	}
 	clearInputBuffer();
 
-	scaleValues(categories, values, *numCategories);
+	scaleValues(categories, values, *numCategories); // Values are scaled again
 
 	int sortOption = 0; // Assume sorting option is decided here or passed in some way
 	sortCategories(categories, values, *numCategories, sortOption);
 
-	drawChart(categories, values, *numCategories, title, xAxisLabel);
+	drawChart(categories, values, *numCategories, title, xAxisLabel); //Chart is redrawn
 }
 
 // Function to change x-axis label [Option 6]
