@@ -969,7 +969,7 @@ void getInput(Category categories[], int *numCategories, char *title, char *xAxi
 	printf("How many categories (max 12)? ");
 	while (getValidatedInteger(numCategories, (int[]){1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, 12) == 0) // Check if category value is an integer within 1 to 12
 	{
-		printf("Invalid input. Please enter a number between 1 and 12: ");
+		printf("Invalid input. Please enter a number from 1 to 12: ");
 	}
 
 	for (int i = 0; i < *numCategories; i++)
@@ -1241,7 +1241,7 @@ void cancelData(Category categories[], Scaled values[], int *numCategories, char
 		}
 		else
 		{
-			printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
+			printf("Invalid choice. Please enter a number from 1 to %d.\n", *numCategories);
 		}
 	}
 
@@ -1386,7 +1386,7 @@ void changeCategoryName(Category categories[], Scaled values[], int *numCategori
 		}
 		else
 		{
-			printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
+			printf("Invalid choice. Please enter a number from 1 to %d.\n", *numCategories);
 		}
 	}
 
@@ -1429,7 +1429,7 @@ void changeCategoryValue(Category categories[], Scaled values[], int *numCategor
 		}
 		else
 		{
-			printf("Invalid choice. Please enter a number between 1 and %d.\n", *numCategories);
+			printf("Invalid choice. Please enter a number from 1 to %d.\n", *numCategories);
 		}
 	}
 
