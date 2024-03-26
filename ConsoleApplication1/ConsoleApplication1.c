@@ -1362,86 +1362,118 @@ void changeXLabel(Category categories[], Scaled values[], int *numCategories, ch
 // function to read the file
 void readBarChartFromFile(const char *filename, Category categories[], int *numCategories, char *title, char *xAxisLabel, int *sortOption)
 {
-	FILE *file = fopen(filename, "r");
-	if (file == NULL)
-	{
-		printf("Error opening file! Please ensure the file path is correct and the file is accessible.\n");
-		exit(EXIT_FAILURE); // Exit the program if the file cannot be opened
-	}
+    FILE *file;
+    int fileOpened = 0;
+    int errorOccurred = 0;
 
-	// Read the title
-	if (fscanf(file, "Title of bar chart : %[^\n]", title) != 1)
-	{
-		printf("Error reading title. Please ensure the title is a string.\n");
-		fclose(file);
-		exit(EXIT_FAILURE); // Exit the program if the title is not a string
-	}
-	fgetc(file); // Consume the newline character
+    while (!fileOpened)
+    {
+        file = fopen(filename, "r");
+        if (file == NULL)
+        {
+            printf("Error opening file! Please ensure the file path is correct and the file is accessible.\n");
+            printf("Enter the file path again: ");
+            scanf("%100s", filename); // Assuming the filename is not longer than 100 characters
+            clearInputBuffer(); // Assuming clearInputBuffer is uncommented and available
+            continue; // Skip the rest of the loop and try again
+        }
 
-	// Read the x-axis label
-	if (fscanf(file, "X-axis label : %[^\n]", xAxisLabel) != 1)
-	{
-		printf("Error reading x-axis label. Please ensure the label is a string.\n");
-		fclose(file);
-		exit(EXIT_FAILURE); // Exit the program if the x-axis label is not a string
-	}
-	fgetc(file); // Consume the newline character
+        // Reset errorOccurred for each new file attempt
+        errorOccurred = 0;
 
-	// Read the number of categories
-	if (fscanf(file, "number of categories(s) :%d", numCategories) != 1)
-	{
-		printf("Error reading number of categories. Please ensure it is an integer.\n");
-		fclose(file);
-		exit(EXIT_FAILURE); // Exit the program if the number of categories is not an integer
-	}
-	fgetc(file); // Consume the newline character
+        // Read the title
+        if (fscanf(file, "Title of bar chart : %[^\n]", title) != 1)
+        {
+            printf("Error reading title. Please ensure the title is a string.\n");
+            errorOccurred = 1;
+        }
+        else
+        {
+            fgetc(file); // Consume the newline character
+        }
 
-	// Check if the number of categories exceeds the limit
-	if (*numCategories > 12)
-	{
-		printf("Error: The number of categories exceeds the limit of 12.\n");
-		fclose(file);
-		exit(EXIT_FAILURE); // Exit the program if the number of categories is more than 12
-	}
-	// Read each category's name and value
-	for (int i = 0; i < *numCategories; i++)
-	{
-		char tempName[16]; // Temporary buffer to hold the category name
-		if (fscanf(file, "%15[^\n]", tempName) != 1)
-		{
-			printf("Error reading category name. Please ensure it is a string.\n");
-			fclose(file);
-			exit(EXIT_FAILURE); // Exit the program if the category name is not a string
-		}
-		clearInputBufferfile(file); // Clear the input buffer for the file
+        // Read the x-axis label
+        if (fscanf(file, "X-axis label : %[^\n]", xAxisLabel) != 1)
+        {
+            printf("Error reading x-axis label. Please ensure the label is a string.\n");
+            errorOccurred = 1;
+        }
+        else
+        {
+            fgetc(file); // Consume the newline character
+        }
 
-		// Truncate the category name if it's longer than 15 characters
-		tempName[15] = '\0'; // Ensure null-termination
-		// trim leading and trailing whitespace
-		str_trim(tempName);
+        // Read the number of categories
+        if (fscanf(file, "number of categories(s) :%d", numCategories) != 1)
+        {
+            printf("Error reading number of categories. Please ensure it is an integer.\n");
+            errorOccurred = 1;
+        }
+        else
+        {
+            fgetc(file); // Consume the newline character
+        }
 
-		strncpy(categories[i].name, tempName, sizeof(categories[i].name));
+        // Check if the number of categories exceeds the limit
+        if (*numCategories > 12)
+        {
+            printf("Error: The number of categories exceeds the limit of 12.\n");
+            errorOccurred = 1;
+        }
 
-		// Read the category value
-		if (fscanf(file, "%d", &categories[i].value) != 1)
-		{
-			printf("Error reading category value. Please ensure it is an integer.\n");
-			fclose(file);
-			exit(EXIT_FAILURE); // Exit the program if the category value is not an integer
-		}
-		fgetc(file); // Consume the newline character
-	}
+        // Read each category's name and value
+        for (int i = 0; i < *numCategories && !errorOccurred; i++)
+        {
+            char tempName[16]; // Temporary buffer to hold the category name
+            if (fscanf(file, "%15[^\n]", tempName) != 1)
+            {
+                printf("Error reading category name. Please ensure it is a string.\n");
+                errorOccurred = 1;
+                break;
+            }
+            clearInputBufferfile(file); // Clear the input buffer for the file
 
-	// Read the sort option
-	if (fscanf(file, "sort option (0) for by name (1) for by bar length: %d", sortOption) != 1)
-	{
-		printf("Error reading sort option. Please ensure it is an integer.\n");
-		fclose(file);
-		exit(EXIT_FAILURE); // Exit the program if the sort option is not an integer
-	}
-	fgetc(file); // Consume the newline character
+            // Truncate the category name if it's longer than 15 characters
+            tempName[15] = '\0'; // Ensure null-termination
+            // trim leading and trailing whitespace
+            str_trim(tempName);
 
-	fclose(file);
+            strncpy(categories[i].name, tempName, sizeof(categories[i].name));
+
+            // Read the category value
+            if (fscanf(file, "%d", &categories[i].value) != 1)
+            {
+                printf("Error reading category value. Please ensure it is an integer.\n");
+                errorOccurred = 1;
+                break;
+            }
+            fgetc(file); // Consume the newline character
+        }
+
+        // Read the sort option
+        if (fscanf(file, "sort option (0) for by name (1) for by bar length: %d", sortOption) != 1)
+        {
+            printf("Error reading sort option. Please ensure it is an integer.\n");
+            errorOccurred = 1;
+        }
+        else
+        {
+            fgetc(file); // Consume the newline character
+        }
+
+        if (!errorOccurred)
+        {
+            fileOpened = 1; // If we reach this point, the file was read successfully
+            fclose(file);
+        }
+        else
+        {
+            fclose(file);
+            printf("Enter the file path again: ");
+            scanf("%100s", filename); // Assuming the filename is not longer than 100 characters
+            clearInputBuffer(); // Assuming clearInputBuffer is uncommented and available
+        }
+    }
 }
 
 void clearInputBufferfile(FILE *file)
