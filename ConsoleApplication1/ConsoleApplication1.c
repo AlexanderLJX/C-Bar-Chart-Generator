@@ -1461,9 +1461,9 @@ void changeTitle(Category categories[], Scaled values[], int *numCategories, cha
 
 	scaleValues(categories, values, *numCategories); // Values are scaled again
 
-	sortCategories(categories, values, *numCategories, sortOption);
+	sortCategories(categories, values, *numCategories, sortOption); //Chart sorted based on the category option chosen previously
 
-	drawChart(categories, values, *numCategories, title, xAxisLabel); //Chart is redrawn
+	drawChart(categories, values, *numCategories, title, xAxisLabel); //Chart is redrawn with new title
 }
 
 // Function to change x-axis label [Option 6]
@@ -1477,11 +1477,11 @@ void changeXLabel(Category categories[], Scaled values[], int *numCategories, ch
 	}
 	clearInputBuffer();
 
-	scaleValues(categories, values, *numCategories);
+	scaleValues(categories, values, *numCategories); //Values are scaled again
 
-	sortCategories(categories, values, *numCategories, sortOption);
+	sortCategories(categories, values, *numCategories, sortOption); //Chart sorted based on the category option chosen previously
 
-	drawChart(categories, values, *numCategories, title, xAxisLabel);
+	drawChart(categories, values, *numCategories, title, xAxisLabel); //Chart is redrawn with new x-axis label
 }
 // function to read the file
 void readBarChartFromFile(const char *filename, Category categories[], int *numCategories, char *title, char *xAxisLabel, int *sortOption)
