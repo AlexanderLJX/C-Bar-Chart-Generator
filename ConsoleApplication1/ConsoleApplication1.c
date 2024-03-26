@@ -154,11 +154,11 @@ int main()
 		{
 			// Collect user input manually
 			getInput(categories, &numCategories, title, xAxisLabel, &sortOption);
-			// Sort categories based on user's choice
-			sortCategories(categories, values, numCategories, sortOption);
 		}
 	}
 	
+	// Sort categories based on user's choice
+	sortCategories(categories, values, numCategories, sortOption);
 	// Optionally scale values to fit the chart
 	scaleValues(categories, values, numCategories);
 
