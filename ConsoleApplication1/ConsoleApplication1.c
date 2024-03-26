@@ -158,6 +158,7 @@ int main()
 			sortCategories(categories, values, numCategories, sortOption);
 		}
 	}
+	
 	// Optionally scale values to fit the chart
 	scaleValues(categories, values, numCategories);
 
@@ -1488,7 +1489,6 @@ void readBarChartFromFile(const char *filename, Category categories[], int *numC
 {
     FILE *file;
     int fileOpened = 0;
-    int errorOccurred = 0;
 
     while (!fileOpened)
     {
@@ -1502,58 +1502,45 @@ void readBarChartFromFile(const char *filename, Category categories[], int *numC
             continue; // Skip the rest of the loop and try again
         }
 
-        // Reset errorOccurred for each new file attempt
-        errorOccurred = 0;
-
         // Read the title
         if (fscanf(file, "Title of bar chart : %[^\n]", title) != 1)
         {
             printf("Error reading title. Please ensure the title is a string.\n");
-            errorOccurred = 1;
+            goto error_handling;
         }
-        else
-        {
-            fgetc(file); // Consume the newline character
-        }
+        fgetc(file); // Consume the newline character
 
         // Read the x-axis label
         if (fscanf(file, "X-axis label : %[^\n]", xAxisLabel) != 1)
         {
             printf("Error reading x-axis label. Please ensure the label is a string.\n");
-            errorOccurred = 1;
+            goto error_handling;
         }
-        else
-        {
-            fgetc(file); // Consume the newline character
-        }
+        fgetc(file); // Consume the newline character
 
         // Read the number of categories
         if (fscanf(file, "number of categories(s) :%d", numCategories) != 1)
         {
             printf("Error reading number of categories. Please ensure it is an integer.\n");
-            errorOccurred = 1;
+            goto error_handling;
         }
-        else
-        {
-            fgetc(file); // Consume the newline character
-        }
+        fgetc(file); // Consume the newline character
 
         // Check if the number of categories exceeds the limit
         if (*numCategories > 12)
         {
             printf("Error: The number of categories exceeds the limit of 12.\n");
-            errorOccurred = 1;
+            goto error_handling;
         }
 
         // Read each category's name and value
-        for (int i = 0; i < *numCategories && !errorOccurred; i++)
+        for (int i = 0; i < *numCategories; i++)
         {
             char tempName[16]; // Temporary buffer to hold the category name
             if (fscanf(file, "%15[^\n]", tempName) != 1)
             {
                 printf("Error reading category name. Please ensure it is a string.\n");
-                errorOccurred = 1;
-                break;
+                goto error_handling;
             }
             clearInputBufferfile(file); // Clear the input buffer for the file
 
@@ -1568,8 +1555,7 @@ void readBarChartFromFile(const char *filename, Category categories[], int *numC
             if (fscanf(file, "%d", &categories[i].value) != 1)
             {
                 printf("Error reading category value. Please ensure it is an integer.\n");
-                errorOccurred = 1;
-                break;
+                goto error_handling;
             }
             fgetc(file); // Consume the newline character
         }
@@ -1578,25 +1564,19 @@ void readBarChartFromFile(const char *filename, Category categories[], int *numC
         if (fscanf(file, "sort option (0) for by name (1) for by bar length: %d", sortOption) != 1)
         {
             printf("Error reading sort option. Please ensure it is an integer.\n");
-            errorOccurred = 1;
+            goto error_handling;
         }
-        else
-        {
-            fgetc(file); // Consume the newline character
-        }
+        fgetc(file); // Consume the newline character
 
-        if (!errorOccurred)
-        {
-            fileOpened = 1; // If we reach this point, the file was read successfully
-            fclose(file);
-        }
-        else
-        {
-            fclose(file);
-            printf("An error has occured. Amend your file and re-enter the file path: ");
-            scanf("%100s", filename); // Assuming the filename is not longer than 100 characters
-            clearInputBuffer(); // Assuming clearInputBuffer is uncommented and available
-        }
+        fileOpened = 1; // If we reach this point, the file was read successfully
+        fclose(file);
+        return; // Exit the function if the file was read successfully
+
+        error_handling:
+        fclose(file);
+        printf("Error in text file format.Amend it and re-enter the file path again: ");
+        scanf("%100s", filename); // Assuming the filename is not longer than 100 characters
+        clearInputBuffer(); // Assuming clearInputBuffer is uncommented and available
     }
 }
 
