@@ -1593,7 +1593,7 @@ void readBarChartFromFile(const char *filename, Category categories[], int *numC
         else
         {
             fclose(file);
-            printf("Enter the file path again: ");
+            printf("An error has occured. Amend your file and re-enter the file path: ");
             scanf("%100s", filename); // Assuming the filename is not longer than 100 characters
             clearInputBuffer(); // Assuming clearInputBuffer is uncommented and available
         }
